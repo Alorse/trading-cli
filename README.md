@@ -22,6 +22,10 @@ Designed to be used as a CLI tool or wrapped as an MCP (Model Context Protocol) 
 go install github.com/alorse/trading-cli/cmd/trading-cli@latest
 ```
 
+## Documentation
+
+- **[Tools Reference](docs/TOOLS.md)** — Complete documentation for all 25 commands with flags, examples, and output formats
+
 ## Usage
 
 ```bash
