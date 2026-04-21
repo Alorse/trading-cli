@@ -23,39 +23,49 @@ var validIntervals = map[string]bool{
 	"1d": true, "1h": true,
 }
 
-// ValidateTimeframe checks if the timeframe is supported.
+// Pre-computed error strings to avoid rebuilding on every validation failure.
+var (
+	validTimeframesStr  string
+	validPeriodsStr     string
+	validStrategiesStr  string
+	validIntervalsStr   string
+)
+
+func init() {
+	validTimeframesStr = keysOf(validTimeframes)
+	validPeriodsStr = keysOf(validPeriods)
+	validStrategiesStr = keysOf(validStrategies)
+	validIntervalsStr = keysOf(validIntervals)
+}
+
 func ValidateTimeframe(tf string) error {
 	if !validTimeframes[tf] {
-		return fmt.Errorf("invalid timeframe %q: must be one of %s", tf, formatKeys(validTimeframes))
+		return fmt.Errorf("invalid timeframe %q: must be one of %s", tf, validTimeframesStr)
 	}
 	return nil
 }
 
-// ValidatePeriod checks if the backtest period is supported.
 func ValidatePeriod(p string) error {
 	if !validPeriods[p] {
-		return fmt.Errorf("invalid period %q: must be one of %s", p, formatKeys(validPeriods))
+		return fmt.Errorf("invalid period %q: must be one of %s", p, validPeriodsStr)
 	}
 	return nil
 }
 
-// ValidateStrategy checks if the backtest strategy is supported.
 func ValidateStrategy(s string) error {
 	if !validStrategies[s] {
-		return fmt.Errorf("invalid strategy %q: must be one of %s", s, formatKeys(validStrategies))
+		return fmt.Errorf("invalid strategy %q: must be one of %s", s, validStrategiesStr)
 	}
 	return nil
 }
 
-// ValidateInterval checks if the chart interval is supported.
 func ValidateInterval(i string) error {
 	if !validIntervals[i] {
-		return fmt.Errorf("invalid interval %q: must be one of %s", i, formatKeys(validIntervals))
+		return fmt.Errorf("invalid interval %q: must be one of %s", i, validIntervalsStr)
 	}
 	return nil
 }
 
-// ValidateRange checks if a value is within [min, max].
 func ValidateRange(name string, value, min, max float64) error {
 	if value < min || value > max {
 		return fmt.Errorf("%s must be between %.1f and %.1f, got %.1f", name, min, max, value)
@@ -63,7 +73,6 @@ func ValidateRange(name string, value, min, max float64) error {
 	return nil
 }
 
-// ValidateIntRange checks if an int value is within [min, max].
 func ValidateIntRange(name string, value, min, max int) error {
 	if value < min || value > max {
 		return fmt.Errorf("%s must be between %d and %d, got %d", name, min, max, value)
@@ -71,7 +80,7 @@ func ValidateIntRange(name string, value, min, max int) error {
 	return nil
 }
 
-func formatKeys(m map[string]bool) string {
+func keysOf(m map[string]bool) string {
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)

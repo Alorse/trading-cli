@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -11,7 +12,6 @@ import (
 	"github.com/alorse/trading-cli/internal/config"
 )
 
-// HTTPClient wraps http.Client with retry logic and configurable timeout.
 type HTTPClient struct {
 	client     *http.Client
 	maxRetries int
@@ -19,12 +19,13 @@ type HTTPClient struct {
 	userAgent  string
 }
 
-// NewHTTPClient creates a new HTTP client from config.
 func NewHTTPClient(cfg *config.Config) *HTTPClient {
 	transport := &http.Transport{}
 	if cfg.HTTPProxy != "" {
-		proxyURL, _ := url.Parse(cfg.HTTPProxy)
-		transport.Proxy = http.ProxyURL(proxyURL)
+		proxyURL, err := url.Parse(cfg.HTTPProxy)
+		if err == nil {
+			transport.Proxy = http.ProxyURL(proxyURL)
+		}
 	}
 
 	return &HTTPClient{
@@ -38,33 +39,34 @@ func NewHTTPClient(cfg *config.Config) *HTTPClient {
 	}
 }
 
-// Get performs a GET request with retry logic.
 func (c *HTTPClient) Get(ctx context.Context, url string) ([]byte, error) {
-	return c.doRequest(ctx, "GET", url, nil)
+	return c.doRequestWithHeaders(ctx, "GET", url, nil, nil)
 }
 
-// Post performs a POST request with retry logic.
 func (c *HTTPClient) Post(ctx context.Context, url string, body io.Reader) ([]byte, error) {
-	return c.doRequest(ctx, "POST", url, body)
+	return c.doRequestWithHeaders(ctx, "POST", url, body, nil)
 }
 
-// PostWithHeaders performs a POST request with custom headers and retry logic.
 func (c *HTTPClient) PostWithHeaders(ctx context.Context, url string, body io.Reader, headers map[string]string) ([]byte, error) {
 	return c.doRequestWithHeaders(ctx, "POST", url, body, headers)
 }
 
-// GetWithHeaders performs a GET request with custom headers and retry logic.
 func (c *HTTPClient) GetWithHeaders(ctx context.Context, url string, headers map[string]string) ([]byte, error) {
 	return c.doRequestWithHeaders(ctx, "GET", url, nil, headers)
 }
 
-func (c *HTTPClient) doRequest(ctx context.Context, method, url string, body io.Reader) ([]byte, error) {
-	return c.doRequestWithHeaders(ctx, method, url, body, nil)
-}
-
 func (c *HTTPClient) doRequestWithHeaders(ctx context.Context, method, url string, body io.Reader, headers map[string]string) ([]byte, error) {
-	var lastErr error
+	// Buffer body upfront so retries can replay it.
+	var bodyBytes []byte
+	if body != nil {
+		var err error
+		bodyBytes, err = io.ReadAll(body)
+		if err != nil {
+			return nil, fmt.Errorf("reading request body: %w", err)
+		}
+	}
 
+	var lastErr error
 	for attempt := 0; attempt <= c.maxRetries; attempt++ {
 		if attempt > 0 {
 			select {
@@ -74,7 +76,12 @@ func (c *HTTPClient) doRequestWithHeaders(ctx context.Context, method, url strin
 			}
 		}
 
-		req, err := http.NewRequestWithContext(ctx, method, url, body)
+		var bodyReader io.Reader
+		if bodyBytes != nil {
+			bodyReader = bytes.NewReader(bodyBytes)
+		}
+
+		req, err := http.NewRequestWithContext(ctx, method, url, bodyReader)
 		if err != nil {
 			return nil, fmt.Errorf("creating request: %w", err)
 		}

@@ -47,6 +47,8 @@ func (c *RSSClient) FetchURL(ctx context.Context, feedURL, source string) ([]RSS
 	return parseRSS(data, source)
 }
 
+// FetchMultiple aggregates items from multiple feeds. Individual feed failures
+// are skipped so a single unavailable source does not block the rest.
 func (c *RSSClient) FetchMultiple(ctx context.Context, feedNames []string) ([]RSSItem, error) {
 	var all []RSSItem
 	for _, name := range feedNames {

@@ -1,26 +1,30 @@
 package system
 
-import "github.com/alorse/trading-cli/pkg/models"
+import (
+	"github.com/alorse/trading-cli/pkg/models"
+	"github.com/alorse/trading-cli/pkg/utils"
+)
 
-// GetExchanges returns all supported exchanges.
+var supportedTimeframes = []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}
+
 func GetExchanges() []models.ExchangeInfo {
+	tf := supportedTimeframes
 	return []models.ExchangeInfo{
-		{Name: "KUCOIN", Type: "crypto", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
-		{Name: "BINANCE", Type: "crypto", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
-		{Name: "BYBIT", Type: "crypto", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
-		{Name: "OKX", Type: "crypto", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
-		{Name: "BITGET", Type: "crypto", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
-		{Name: "COINBASE", Type: "crypto", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
-		{Name: "GATEIO", Type: "crypto", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
-		{Name: "MEXC", Type: "crypto", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
-		{Name: "HUOBI", Type: "crypto", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
-		{Name: "BITFINEX", Type: "crypto", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
-		{Name: "NASDAQ", Type: "stock", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
-		{Name: "NYSE", Type: "stock", Timeframes: []string{"5m", "15m", "1h", "4h", "1D", "1W", "1M"}},
+		{Name: "KUCOIN", Type: "crypto", Timeframes: tf},
+		{Name: "BINANCE", Type: "crypto", Timeframes: tf},
+		{Name: "BYBIT", Type: "crypto", Timeframes: tf},
+		{Name: "OKX", Type: "crypto", Timeframes: tf},
+		{Name: "BITGET", Type: "crypto", Timeframes: tf},
+		{Name: "COINBASE", Type: "crypto", Timeframes: tf},
+		{Name: "GATEIO", Type: "crypto", Timeframes: tf},
+		{Name: "MEXC", Type: "crypto", Timeframes: tf},
+		{Name: "HUOBI", Type: "crypto", Timeframes: tf},
+		{Name: "BITFINEX", Type: "crypto", Timeframes: tf},
+		{Name: "NASDAQ", Type: "stock", Timeframes: tf},
+		{Name: "NYSE", Type: "stock", Timeframes: tf},
 	}
 }
 
-// RunListExchanges prints all supported exchanges.
 func RunListExchanges() error {
-	return printJSON(GetExchanges())
+	return utils.PrintJSON(GetExchanges())
 }
