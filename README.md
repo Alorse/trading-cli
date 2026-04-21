@@ -18,9 +18,22 @@ Designed to be used as a CLI tool or wrapped as an MCP (Model Context Protocol) 
 
 ## Installation
 
+### Homebrew (macOS/Linux)
+
+```bash
+brew tap alorse/trading-cli
+brew install trading-cli
+```
+
+### Go install
+
 ```bash
 go install github.com/alorse/trading-cli/cmd/trading-cli@latest
 ```
+
+### Binary download
+
+Download pre-built binaries for your platform from the [releases page](https://github.com/alorse/trading-cli/releases/latest). Available for Linux, macOS, and Windows (amd64 and arm64).
 
 ## Documentation
 
