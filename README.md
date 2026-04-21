@@ -1,4 +1,5 @@
 # trading-cli
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Alorse/trading-cli)
 
 A standalone Go binary for technical analysis, screening, backtesting, sentiment analysis, and news aggregation for financial markets.
 
