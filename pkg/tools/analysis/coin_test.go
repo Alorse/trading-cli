@@ -212,9 +212,9 @@ func TestBuildCoinAnalysisOutput(t *testing.T) {
 	if output.Volume.Current != 1000000.0 {
 		t.Errorf("Volume.Current = %f, want 1000000.0", output.Volume.Current)
 	}
-	expectedRatio := 1000000.0 / 950000.0 // current / avg20
-	if output.Volume.Ratio < expectedRatio-0.01 || output.Volume.Ratio > expectedRatio+0.01 {
-		t.Errorf("Volume.Ratio = %f, want ~%f", output.Volume.Ratio, expectedRatio)
+	// Volume ratio defaults to 1.0 when avg20 is unavailable from scanner
+	if output.Volume.Ratio < 0.99 || output.Volume.Ratio > 1.01 {
+		t.Errorf("Volume.Ratio = %f, want ~1.0 (avg20 unavailable)", output.Volume.Ratio)
 	}
 
 	// Test MarketStructure

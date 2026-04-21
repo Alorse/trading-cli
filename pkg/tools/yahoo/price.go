@@ -42,17 +42,17 @@ func RunYahooPrice(cfg *config.Config, symbol string) error {
 		return fmt.Errorf("failed to fetch chart data: %w", err)
 	}
 
-	// Calculate change and percent change
-	change := result.Meta.RegularMarketPrice - result.Meta.PreviousClose
+	prevClose := result.Meta.EffectivePreviousClose()
+	change := result.Meta.RegularMarketPrice - prevClose
 	changePct := 0.0
-	if result.Meta.PreviousClose != 0 {
-		changePct = (change / result.Meta.PreviousClose) * 100
+	if prevClose != 0 {
+		changePct = (change / prevClose) * 100
 	}
 
 	output := PriceOutput{
 		Symbol:        result.Meta.Symbol,
 		Price:         result.Meta.RegularMarketPrice,
-		PreviousClose: result.Meta.PreviousClose,
+		PreviousClose: prevClose,
 		Change:        change,
 		ChangePct:     changePct,
 		Currency:      result.Meta.Currency,

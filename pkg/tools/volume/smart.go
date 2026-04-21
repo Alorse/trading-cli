@@ -128,7 +128,7 @@ func RunSmartVolume(cfg *config.Config, exchange string, minVolumeRatio, minPric
 	for _, result := range allResults {
 		change := getFloat(result.Values, "change")
 		volume := getFloat(result.Values, "volume")
-		volumeAvg20 := getFloat(result.Values, "volume.SMA20")
+		volumeAvg20 := getFloat(result.Values, "average_volume_10d_calc")
 		rsi := getFloat(result.Values, "RSI")
 
 		ratio := computeVolumeRatio(volume, volumeAvg20)

@@ -70,16 +70,16 @@ func RunMarketSnapshot(cfg *config.Config) error {
 			return nil, err
 		}
 
-		change := result.Meta.RegularMarketPrice - result.Meta.PreviousClose
+		change := result.Meta.RegularMarketPrice - result.Meta.EffectivePreviousClose()
 		changePct := 0.0
-		if result.Meta.PreviousClose != 0 {
-			changePct = (change / result.Meta.PreviousClose) * 100
+		if result.Meta.EffectivePreviousClose() != 0 {
+			changePct = (change / result.Meta.EffectivePreviousClose()) * 100
 		}
 
 		return &Quote{
 			Symbol:        result.Meta.Symbol,
 			Price:         result.Meta.RegularMarketPrice,
-			PreviousClose: result.Meta.PreviousClose,
+			PreviousClose: result.Meta.EffectivePreviousClose(),
 			Change:        change,
 			ChangePct:     changePct,
 			Currency:      result.Meta.Currency,

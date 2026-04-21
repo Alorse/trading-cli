@@ -95,11 +95,8 @@ func RunVolumeBreakout(cfg *config.Config, exchange, timeframe string, volumeMul
 		return fmt.Errorf("load symbols: %w", err)
 	}
 
-	// Calculate how many to fetch
-	fetchCount := limit * 3
-	if fetchCount > 500 {
-		fetchCount = 500
-	}
+	// Scan up to 500 symbols to find movers anywhere in the list
+	fetchCount := 500
 	if fetchCount > len(symbols) {
 		fetchCount = len(symbols)
 	}
@@ -134,9 +131,13 @@ func RunVolumeBreakout(cfg *config.Config, exchange, timeframe string, volumeMul
 	for _, result := range allResults {
 		change := getFloat(result.Values, "change")
 		volume := getFloat(result.Values, "volume")
-		volumeAvg20 := getFloat(result.Values, "volume.SMA20")
+		relVol := getFloat(result.Values, "relative_volume_10d_calc")
 
-		ratio := computeVolumeRatio(volume, volumeAvg20)
+		// Use relative volume as volume ratio; fall back to 1.0 if unavailable
+		ratio := relVol
+		if ratio == 0 {
+			ratio = 1.0
+		}
 
 		// Filter: abs(change) >= priceChangeMin AND volumeRatio >= volumeMultiplier
 		if absFloat(change) < priceChangeMin || ratio < volumeMultiplier {

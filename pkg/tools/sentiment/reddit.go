@@ -24,21 +24,21 @@ type RedditTopPost struct {
 	Title        string  `json:"title"`
 	Subreddit    string  `json:"subreddit"`
 	Score        int     `json:"score"`
-	NumComments  int     `json:"num_comments"`
+	NumComments  int     `json:"numComments"`
 	URL          string  `json:"url"`
-	SentimentScore float64 `json:"sentiment_score"`
+	SentimentScore float64 `json:"sentimentScore"`
 }
 
 // SentimentOutput represents the JSON output for market sentiment analysis
 type SentimentOutput struct {
 	Symbol          string          `json:"symbol"`
-	SentimentScore  float64         `json:"sentiment_score"`
-	SentimentLabel  string          `json:"sentiment_label"`
-	PostsAnalyzed   int             `json:"posts_analyzed"`
-	BullishCount    int             `json:"bullish_count"`
-	BearishCount    int             `json:"bearish_count"`
-	NeutralCount    int             `json:"neutral_count"`
-	TopPosts        []RedditTopPost `json:"top_posts"`
+	SentimentScore  float64         `json:"sentimentScore"`
+	SentimentLabel  string          `json:"sentimentLabel"`
+	PostsAnalyzed   int             `json:"postsAnalyzed"`
+	BullishCount    int             `json:"bullishCount"`
+	BearishCount    int             `json:"bearishCount"`
+	NeutralCount    int             `json:"neutralCount"`
+	TopPosts        []RedditTopPost `json:"topPosts"`
 	Sources         []string        `json:"sources"`
 	Timestamp       time.Time       `json:"timestamp"`
 }

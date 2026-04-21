@@ -129,7 +129,7 @@ func RunVolumeConfirmation(cfg *config.Config, symbol, exchange, timeframe strin
 	change := getFloat(values, "change")
 	bbUpper := getFloat(values, "BB.upper")
 	bbLower := getFloat(values, "BB.lower")
-	volumeAvg20 := getFloat(values, "volume.SMA20")
+	volumeAvg20 := getFloat(values, "average_volume_10d_calc")
 
 	// Calculate derived values
 	priceRange := high - low

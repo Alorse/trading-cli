@@ -18,14 +18,23 @@ type YahooOHLCV struct {
 }
 
 type YahooMeta struct {
-	Symbol             string  `json:"symbol"`
-	Currency           string  `json:"currency"`
-	ExchangeName       string  `json:"exchangeName"`
-	RegularMarketPrice float64 `json:"regularMarketPrice"`
-	PreviousClose      float64 `json:"previousClose"`
-	FiftyTwoWeekHigh   float64 `json:"fiftyTwoWeekHigh"`
-	FiftyTwoWeekLow    float64 `json:"fiftyTwoWeekLow"`
-	MarketState        string  `json:"marketState"`
+	Symbol              string  `json:"symbol"`
+	Currency            string  `json:"currency"`
+	ExchangeName        string  `json:"exchangeName"`
+	RegularMarketPrice  float64 `json:"regularMarketPrice"`
+	PreviousClose       float64 `json:"previousClose"`
+	ChartPreviousClose  float64 `json:"chartPreviousClose"`
+	FiftyTwoWeekHigh    float64 `json:"fiftyTwoWeekHigh"`
+	FiftyTwoWeekLow     float64 `json:"fiftyTwoWeekLow"`
+	MarketState         string  `json:"marketState"`
+}
+
+// EffectivePreviousClose returns the best available previous close value.
+func (m YahooMeta) EffectivePreviousClose() float64 {
+	if m.PreviousClose != 0 {
+		return m.PreviousClose
+	}
+	return m.ChartPreviousClose
 }
 
 type YahooChartResult struct {
@@ -73,6 +82,7 @@ type yahooResponse struct {
 				ExchangeName       string  `json:"exchangeName"`
 				RegularMarketPrice float64 `json:"regularMarketPrice"`
 				PreviousClose      float64 `json:"previousClose"`
+				ChartPreviousClose float64 `json:"chartPreviousClose"`
 				FiftyTwoWeekHigh   float64 `json:"fiftyTwoWeekHigh"`
 				FiftyTwoWeekLow    float64 `json:"fiftyTwoWeekLow"`
 				MarketState        string  `json:"marketState"`
@@ -116,6 +126,7 @@ func parseYahooFullChart(data []byte) (*YahooChartResult, error) {
 		ExchangeName:       raw.Meta.ExchangeName,
 		RegularMarketPrice: raw.Meta.RegularMarketPrice,
 		PreviousClose:      raw.Meta.PreviousClose,
+		ChartPreviousClose: raw.Meta.ChartPreviousClose,
 		FiftyTwoWeekHigh:   raw.Meta.FiftyTwoWeekHigh,
 		FiftyTwoWeekLow:    raw.Meta.FiftyTwoWeekLow,
 		MarketState:        raw.Meta.MarketState,

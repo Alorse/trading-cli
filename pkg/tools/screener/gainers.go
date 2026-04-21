@@ -59,7 +59,7 @@ func RunTopGainers(cfg *config.Config, exchange, timeframe string, limit int) er
 	}
 
 	// Build entries and filter
-	var entries []*ScreenerEntry
+	entries := make([]*ScreenerEntry, 0)
 	for _, result := range results {
 		entry := buildEntry(result)
 		if entry != nil {

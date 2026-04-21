@@ -204,17 +204,12 @@ func BuildCoinAnalysisOutput(symbol, exchange, timeframe string, values map[stri
 	stochK := getFloat(values, "Stoch.K")
 	stochD := getFloat(values, "Stoch.D")
 
-	volumeAvg20 := getFloat(values, "volume.SMA20")
-
 	recAll := getFloat(values, "Recommend.All")
 	recMA := getFloat(values, "Recommend.MA")
 	recOther := getFloat(values, "Recommend.Other")
 
-	// Calculate derived values
+	// Volume ratio not available from scanner; default to 1
 	volumeRatio := 1.0
-	if volumeAvg20 > 0 {
-		volumeRatio = volume / volumeAvg20
-	}
 
 	bbWidth := 0.0
 	if sma20 > 0 {
@@ -271,7 +266,7 @@ func BuildCoinAnalysisOutput(symbol, exchange, timeframe string, values map[stri
 		ADX: adx,
 		Volume: VolumeData{
 			Current: volume,
-			Avg20:   volumeAvg20,
+			Avg20:   0,
 			Ratio:   volumeRatio,
 		},
 		Stochastic: StochasticData{

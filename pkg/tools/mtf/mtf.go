@@ -231,7 +231,7 @@ func computeRecommendation(totalBias int) string {
 
 // findDivergentTimeframes identifies timeframes that diverge from the majority
 func findDivergentTimeframes(biases map[string]int, totalBias int) []string {
-	var divergent []string
+	divergent := make([]string, 0)
 
 	// Determine majority direction
 	majorityPositive := totalBias > 0
