@@ -4,9 +4,9 @@ import (
 	"github.com/alorse/trading-cli/pkg/client"
 )
 
-// getFloat safely extracts a float64 from an interface{} map value
+// GetFloatFromInterface safely extracts a float64 from an interface{} map value
 // Returns 0 if the key is missing or the value is not a number
-func getFloat(values map[string]interface{}, key string) float64 {
+func GetFloatFromInterface(values map[string]interface{}, key string) float64 {
 	val, ok := values[key]
 	if !ok {
 		return 0
@@ -22,6 +22,11 @@ func getFloat(values map[string]interface{}, key string) float64 {
 	default:
 		return 0
 	}
+}
+
+// getFloat is an unexported wrapper for backward compatibility
+func getFloat(values map[string]interface{}, key string) float64 {
+	return GetFloatFromInterface(values, key)
 }
 
 // getInt safely extracts an int64 from an interface{} map value
