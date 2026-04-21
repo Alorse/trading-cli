@@ -21,7 +21,7 @@ Designed to be used as a CLI tool or wrapped as an MCP (Model Context Protocol) 
 ### Homebrew (macOS/Linux)
 
 ```bash
-brew tap alorse/trading-cli
+brew tap alorse/homebrew-tap
 brew install trading-cli
 ```
 

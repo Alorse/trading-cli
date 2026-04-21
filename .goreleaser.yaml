@@ -85,7 +85,7 @@ release:
 
     ### macOS/Linux (Homebrew)
     ```bash
-    brew tap alorse/trading-cli
+    brew tap alorse/homebrew-tap
     brew install trading-cli
     ```
 
