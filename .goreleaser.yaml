@@ -102,6 +102,7 @@ brews:
     repository:
       owner: alorse
       name: homebrew-tap
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
     directory: Formula
     homepage: "https://github.com/alorse/trading-cli"
     description: "Technical analysis and trading tools CLI"
