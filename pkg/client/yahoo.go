@@ -17,6 +17,22 @@ type YahooOHLCV struct {
 	Volume    int64
 }
 
+type YahooMeta struct {
+	Symbol             string  `json:"symbol"`
+	Currency           string  `json:"currency"`
+	ExchangeName       string  `json:"exchangeName"`
+	RegularMarketPrice float64 `json:"regularMarketPrice"`
+	PreviousClose      float64 `json:"previousClose"`
+	FiftyTwoWeekHigh   float64 `json:"fiftyTwoWeekHigh"`
+	FiftyTwoWeekLow    float64 `json:"fiftyTwoWeekLow"`
+	MarketState        string  `json:"marketState"`
+}
+
+type YahooChartResult struct {
+	Meta    YahooMeta
+	Candles []YahooOHLCV
+}
+
 type YahooClient struct {
 	http *HTTPClient
 }
@@ -26,6 +42,14 @@ func NewYahooClient(http *HTTPClient) *YahooClient {
 }
 
 func (c *YahooClient) GetChart(ctx context.Context, symbol, interval, rangeStr string) ([]YahooOHLCV, error) {
+	result, err := c.GetFullChart(ctx, symbol, interval, rangeStr)
+	if err != nil {
+		return nil, err
+	}
+	return result.Candles, nil
+}
+
+func (c *YahooClient) GetFullChart(ctx context.Context, symbol, interval, rangeStr string) (*YahooChartResult, error) {
 	url := fmt.Sprintf("%s/%s?interval=%s&range=%s", yahooChartBase, symbol, interval, rangeStr)
 
 	headers := map[string]string{
@@ -37,12 +61,22 @@ func (c *YahooClient) GetChart(ctx context.Context, symbol, interval, rangeStr s
 		return nil, fmt.Errorf("yahoo chart fetch: %w", err)
 	}
 
-	return parseYahooChart(data)
+	return parseYahooFullChart(data)
 }
 
 type yahooResponse struct {
 	Chart struct {
 		Result []struct {
+			Meta struct {
+				Symbol             string  `json:"symbol"`
+				Currency           string  `json:"currency"`
+				ExchangeName       string  `json:"exchangeName"`
+				RegularMarketPrice float64 `json:"regularMarketPrice"`
+				PreviousClose      float64 `json:"previousClose"`
+				FiftyTwoWeekHigh   float64 `json:"fiftyTwoWeekHigh"`
+				FiftyTwoWeekLow    float64 `json:"fiftyTwoWeekLow"`
+				MarketState        string  `json:"marketState"`
+			} `json:"meta"`
 			Timestamp  []int64 `json:"timestamp"`
 			Indicators struct {
 				Quote []struct {
@@ -61,7 +95,7 @@ type yahooResponse struct {
 	} `json:"chart"`
 }
 
-func parseYahooChart(data []byte) ([]YahooOHLCV, error) {
+func parseYahooFullChart(data []byte) (*YahooChartResult, error) {
 	var resp yahooResponse
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, fmt.Errorf("parse yahoo response: %w", err)
@@ -75,23 +109,54 @@ func parseYahooChart(data []byte) ([]YahooOHLCV, error) {
 		return nil, fmt.Errorf("no chart data returned")
 	}
 
-	result := resp.Chart.Result[0]
-	if len(result.Indicators.Quote) == 0 {
-		return nil, fmt.Errorf("no quote data in chart")
+	raw := resp.Chart.Result[0]
+	meta := YahooMeta{
+		Symbol:             raw.Meta.Symbol,
+		Currency:           raw.Meta.Currency,
+		ExchangeName:       raw.Meta.ExchangeName,
+		RegularMarketPrice: raw.Meta.RegularMarketPrice,
+		PreviousClose:      raw.Meta.PreviousClose,
+		FiftyTwoWeekHigh:   raw.Meta.FiftyTwoWeekHigh,
+		FiftyTwoWeekLow:    raw.Meta.FiftyTwoWeekLow,
+		MarketState:        raw.Meta.MarketState,
 	}
 
-	quote := result.Indicators.Quote[0]
-	n := len(result.Timestamp)
+	candles, err := extractCandles(raw.Timestamp, raw.Indicators.Quote)
+	if err != nil {
+		return nil, err
+	}
+
+	return &YahooChartResult{Meta: meta, Candles: candles}, nil
+}
+
+// parseYahooChart kept for backward compatibility with tests.
+func parseYahooChart(data []byte) ([]YahooOHLCV, error) {
+	result, err := parseYahooFullChart(data)
+	if err != nil {
+		return nil, err
+	}
+	return result.Candles, nil
+}
+
+func extractCandles(timestamps []int64, quotes []struct {
+	Open   []float64 `json:"open"`
+	High   []float64 `json:"high"`
+	Low    []float64 `json:"low"`
+	Close  []float64 `json:"close"`
+	Volume []int64   `json:"volume"`
+}) ([]YahooOHLCV, error) {
+	if len(quotes) == 0 {
+		return nil, fmt.Errorf("no quote data in chart")
+	}
+	quote := quotes[0]
+	n := len(timestamps)
 	candles := make([]YahooOHLCV, 0, n)
 
 	for i := 0; i < n; i++ {
 		if i >= len(quote.Close) || quote.Close[i] == 0 {
 			continue
 		}
-		candle := YahooOHLCV{
-			Timestamp: result.Timestamp[i],
-			Close:     quote.Close[i],
-		}
+		candle := YahooOHLCV{Timestamp: timestamps[i], Close: quote.Close[i]}
 		if i < len(quote.Open) {
 			candle.Open = quote.Open[i]
 		}
@@ -106,6 +171,5 @@ func parseYahooChart(data []byte) ([]YahooOHLCV, error) {
 		}
 		candles = append(candles, candle)
 	}
-
 	return candles, nil
 }
