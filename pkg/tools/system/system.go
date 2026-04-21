@@ -10,10 +10,16 @@ import (
 	"github.com/alorse/trading-cli/pkg/utils"
 )
 
-const Version = "0.1.0"
+var (
+	Version = "dev"
+	Commit  = "unknown"
+	Date    = "unknown"
+)
 
 type VersionInfo struct {
 	Version   string `json:"version"`
+	Commit    string `json:"commit"`
+	Date      string `json:"date"`
 	GoVersion string `json:"goVersion"`
 }
 
@@ -26,6 +32,8 @@ type HealthStatus struct {
 func RunVersion() error {
 	return utils.PrintJSON(VersionInfo{
 		Version:   Version,
+		Commit:    Commit,
+		Date:      Date,
 		GoVersion: runtime.Version(),
 	})
 }
