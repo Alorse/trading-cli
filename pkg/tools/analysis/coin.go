@@ -25,8 +25,19 @@ type CoinAnalysisOutput struct {
 	ATR             float64             `json:"atr"`
 	ADX             float64             `json:"adx"`
 	Volume          VolumeData          `json:"volume"`
-	Stochastic      StochasticData      `json:"stochastic"`
-	Recommendation  RecommendationData  `json:"recommendation"`
+	Stochastic         StochasticData      `json:"stochastic"`
+	CCI                CCIData             `json:"cci"`
+	WilliamsR          WilliamsRData       `json:"williamsR"`
+	AwesomeOscillator  float64             `json:"awesomeOscillator"`
+	Momentum           MomentumData        `json:"momentum"`
+	ParabolicSAR       float64             `json:"parabolicSAR"`
+	Ichimoku           IchimokuData        `json:"ichimoku"`
+	HullMA             float64             `json:"hullMA"`
+	StochasticRSI      StochasticRSIData   `json:"stochasticRSI"`
+	UltimateOscillator float64             `json:"ultimateOscillator"`
+	VWAP               float64             `json:"vwap"`
+	VWMA               float64             `json:"vwma"`
+	Recommendation     RecommendationData  `json:"recommendation"`
 	MarketStructure MarketStructureData `json:"marketStructure"`
 	Timestamp       string              `json:"timestamp"`
 }
@@ -81,6 +92,27 @@ type MarketStructureData struct {
 	Trend               string  `json:"trend"`
 	TrendScore          int     `json:"trendScore"`
 	MomentumAlignment   float64 `json:"momentumAlignment"`
+}
+
+type CCIData struct {
+	Value  float64 `json:"value"`
+	Signal string  `json:"signal"`
+}
+
+type WilliamsRData struct {
+	Value float64 `json:"value"`
+}
+
+type MomentumData struct {
+	Value float64 `json:"value"`
+}
+
+type IchimokuData struct {
+	BaseLine float64 `json:"baseLine"`
+}
+
+type StochasticRSIData struct {
+	K float64 `json:"k"`
 }
 
 // getFloat safely extracts a float64 from an interface{} map value
@@ -167,6 +199,16 @@ func computeTrendFloat(close, ema50, ema200 float64) string {
 	return "neutral"
 }
 
+func computeCCISignal(cci float64) string {
+	if cci > 100 {
+		return "overbought"
+	}
+	if cci < -100 {
+		return "oversold"
+	}
+	return "neutral"
+}
+
 // BuildCoinAnalysisOutput constructs the analysis output from raw values
 func BuildCoinAnalysisOutput(symbol, exchange, timeframe string, values map[string]interface{}) *CoinAnalysisOutput {
 	close := getFloat(values, "close")
@@ -203,6 +245,18 @@ func BuildCoinAnalysisOutput(symbol, exchange, timeframe string, values map[stri
 
 	stochK := getFloat(values, "Stoch.K")
 	stochD := getFloat(values, "Stoch.D")
+
+	cci := getFloat(values, "CCI20")
+	williamsR := getFloat(values, "W.R")
+	ao := getFloat(values, "AO")
+	mom := getFloat(values, "Mom")
+	psar := getFloat(values, "P.SAR")
+	ichimokuBase := getFloat(values, "Ichimoku.BLine")
+	hullMA := getFloat(values, "HullMA9")
+	stochRSIK := getFloat(values, "Stoch.RSI.K")
+	uo := getFloat(values, "UO")
+	vwap := getFloat(values, "VWAP")
+	vwma := getFloat(values, "VWMA")
 
 	recAll := getFloat(values, "Recommend.All")
 	recMA := getFloat(values, "Recommend.MA")
@@ -273,6 +327,28 @@ func BuildCoinAnalysisOutput(symbol, exchange, timeframe string, values map[stri
 			K: stochK,
 			D: stochD,
 		},
+		CCI: CCIData{
+			Value:  cci,
+			Signal: computeCCISignal(cci),
+		},
+		WilliamsR: WilliamsRData{
+			Value: williamsR,
+		},
+		AwesomeOscillator: ao,
+		Momentum: MomentumData{
+			Value: mom,
+		},
+		ParabolicSAR: psar,
+		Ichimoku: IchimokuData{
+			BaseLine: ichimokuBase,
+		},
+		HullMA: hullMA,
+		StochasticRSI: StochasticRSIData{
+			K: stochRSIK,
+		},
+		UltimateOscillator: uo,
+		VWAP:               vwap,
+		VWMA:               vwma,
 		Recommendation: RecommendationData{
 			All:   recAll,
 			MA:    recMA,
