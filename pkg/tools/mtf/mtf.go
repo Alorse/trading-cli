@@ -20,15 +20,68 @@ type TimeframeAnalysis struct {
 
 // MTFResult represents the complete multi-timeframe analysis result
 type MTFResult struct {
-	Symbol         string                `json:"symbol"`
-	Exchange       string                `json:"exchange"`
-	Timeframes     []TimeframeAnalysis   `json:"timeframes"`
-	TotalBias      int                   `json:"totalBias"`
-	Alignment      string                `json:"alignment"`
-	Confidence     string                `json:"confidence"`
-	Recommendation string                `json:"recommendation"`
-	DivergentTFs   []string              `json:"divergentTimeframes"`
-	Timestamp      string                `json:"timestamp"`
+	Symbol         string              `json:"symbol"`
+	Exchange       string              `json:"exchange"`
+	Timeframes     []TimeframeAnalysis `json:"timeframes"`
+	TotalBias      int                 `json:"totalBias"`
+	Alignment      string              `json:"alignment"`
+	Confidence     string              `json:"confidence"`
+	Recommendation string              `json:"recommendation"`
+	DivergentTFs   []string            `json:"divergentTimeframes"`
+	Timestamp      string              `json:"timestamp"`
+}
+
+// timeframeSuffix maps logical timeframes to TradingView column suffixes.
+// Empty string means the screener's default timeframe (1D).
+var timeframeSuffix = map[string]string{
+	"1W":  "|1W",
+	"1D":  "",
+	"4h":  "|240",
+	"1h":  "|60",
+	"15m": "|15",
+}
+
+// timeframeColumnDefs lists the unsuffixed columns required for each timeframe's bias computation.
+var timeframeColumnDefs = map[string][]string{
+	"1W":  {"close", "EMA100", "EMA200", "MACD.macd", "MACD.signal", "RSI"},
+	"1D":  {"close", "EMA50", "EMA200", "RSI", "relative_volume_10d_calc", "MACD.macd", "MACD.signal"},
+	"4h":  {"close", "EMA20", "EMA50", "MACD.macd", "MACD.signal"},
+	"1h":  {"close", "EMA20", "VWAP", "relative_volume_10d_calc"},
+	"15m": {"close", "EMA9", "EMA20", "VWAP"},
+}
+
+// buildMTFColumns constructs a deduplicated list of suffixed column names
+// for a single TradingView API call that fetches data for all timeframes.
+func buildMTFColumns() []string {
+	seen := make(map[string]struct{})
+	var cols []string
+	for tf, defCols := range timeframeColumnDefs {
+		suffix := timeframeSuffix[tf]
+		for _, col := range defCols {
+			suffixed := col + suffix
+			if _, ok := seen[suffixed]; !ok {
+				seen[suffixed] = struct{}{}
+				cols = append(cols, suffixed)
+			}
+		}
+	}
+	return cols
+}
+
+// extractTimeframeValues builds a per-timeframe values map with unsuffixed keys
+// from the raw API response that contains suffixed column names.
+func extractTimeframeValues(values map[string]interface{}, tf string) map[string]interface{} {
+	suffix := timeframeSuffix[tf]
+	tfValues := make(map[string]interface{})
+	for _, col := range timeframeColumnDefs[tf] {
+		suffixed := col + suffix
+		if v, ok := values[suffixed]; ok {
+			tfValues[col] = v
+		} else {
+			tfValues[col] = nil
+		}
+	}
+	return tfValues
 }
 
 // getFloat safely extracts a float64 value
@@ -50,10 +103,15 @@ func getFloat(values map[string]interface{}, key string) float64 {
 	}
 }
 
-// computeBias computes bias for a specific timeframe
-func computeBias(timeframe string, close, ema200, ema100, ema50, ema20, ema9, rsi, change, vwap, macdLine, macdSignal, relVolume float64) int {
+// computeBias computes bias for a specific timeframe using its dedicated values map.
+func computeBias(timeframe string, values map[string]interface{}) int {
 	switch timeframe {
 	case "1W":
+		ema100 := getFloat(values, "EMA100")
+		ema200 := getFloat(values, "EMA200")
+		rsi := getFloat(values, "RSI")
+		macdLine := getFloat(values, "MACD.macd")
+		macdSignal := getFloat(values, "MACD.signal")
 		score := 0
 		if ema100 > ema200 {
 			score++
@@ -73,6 +131,13 @@ func computeBias(timeframe string, close, ema200, ema100, ema50, ema20, ema9, rs
 		return 0
 
 	case "1D":
+		close := getFloat(values, "close")
+		ema50 := getFloat(values, "EMA50")
+		ema200 := getFloat(values, "EMA200")
+		rsi := getFloat(values, "RSI")
+		relVolume := getFloat(values, "relative_volume_10d_calc")
+		macdLine := getFloat(values, "MACD.macd")
+		macdSignal := getFloat(values, "MACD.signal")
 		score := 0
 		if close > ema50 && ema50 > ema200 {
 			score++ // golden cross
@@ -99,6 +164,10 @@ func computeBias(timeframe string, close, ema200, ema100, ema50, ema20, ema9, rs
 		return 0
 
 	case "4h":
+		ema20 := getFloat(values, "EMA20")
+		ema50 := getFloat(values, "EMA50")
+		macdLine := getFloat(values, "MACD.macd")
+		macdSignal := getFloat(values, "MACD.signal")
 		score := 0
 		if ema20 > ema50 {
 			score++
@@ -115,6 +184,10 @@ func computeBias(timeframe string, close, ema200, ema100, ema50, ema20, ema9, rs
 		return 0
 
 	case "1h":
+		close := getFloat(values, "close")
+		ema20 := getFloat(values, "EMA20")
+		relVolume := getFloat(values, "relative_volume_10d_calc")
+		vwap := getFloat(values, "VWAP")
 		score := 0
 		if close > ema20 {
 			score++
@@ -134,6 +207,10 @@ func computeBias(timeframe string, close, ema200, ema100, ema50, ema20, ema9, rs
 		return 0
 
 	case "15m":
+		close := getFloat(values, "close")
+		ema9 := getFloat(values, "EMA9")
+		ema20 := getFloat(values, "EMA20")
+		vwap := getFloat(values, "VWAP")
 		score := 0
 		if ema9 > ema20 {
 			score++
@@ -330,14 +407,17 @@ func RunMultiTimeframe(cfg *config.Config, symbol, exchange string) error {
 		return fmt.Errorf("invalid exchange: %w", err)
 	}
 
-	// Fetch analysis data (same data for all timeframes since TV scanner doesn't differentiate)
+	// Build MTF-specific columns with timeframe suffixes
+	columns := buildMTFColumns()
+
+	// Fetch analysis data with per-timeframe columns in a single API call
 	httpClient := client.NewHTTPClient(cfg)
 	tvClient := client.NewTradingViewClient(httpClient)
 
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.HTTPTimeout)
 	defer cancel()
 
-	results, err := tvClient.GetMultipleAnalysis(ctx, screenName, []string{ticker}, client.DefaultColumns)
+	results, err := tvClient.GetMultipleAnalysis(ctx, screenName, []string{ticker}, columns)
 	if err != nil {
 		return fmt.Errorf("fetch analysis: %w", err)
 	}
@@ -348,29 +428,16 @@ func RunMultiTimeframe(cfg *config.Config, symbol, exchange string) error {
 
 	values := results[0].Values
 
-	// Extract all needed values
-	close := getFloat(values, "close")
-	ema9 := getFloat(values, "EMA9")
-	ema20 := getFloat(values, "EMA20")
-	ema50 := getFloat(values, "EMA50")
-	ema100 := getFloat(values, "EMA100")
-	ema200 := getFloat(values, "EMA200")
-	rsi := getFloat(values, "RSI")
-	change := getFloat(values, "change")
-	vwap := getFloat(values, "VWAP")
-	macdLine := getFloat(values, "MACD.macd")
-	macdSignal := getFloat(values, "MACD.signal")
-	relVolume := getFloat(values, "relative_volume_10d_calc")
-
-	// Analyze each timeframe
+	// Analyze each timeframe using its own extracted indicator values
 	timeframes := []string{"1W", "1D", "4h", "1h", "15m"}
 	timeframeAnalyses := make([]TimeframeAnalysis, len(timeframes))
 	biasMap := make(map[string]int)
 	totalBias := 0
 
 	for i, tf := range timeframes {
-		bias := computeBias(tf, close, ema200, ema100, ema50, ema20, ema9, rsi, change, vwap, macdLine, macdSignal, relVolume)
-		reason := computeReason(tf, bias, values)
+		tfValues := extractTimeframeValues(values, tf)
+		bias := computeBias(tf, tfValues)
+		reason := computeReason(tf, bias, tfValues)
 
 		timeframeAnalyses[i] = TimeframeAnalysis{
 			Timeframe: tf,
