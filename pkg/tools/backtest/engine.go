@@ -120,9 +120,7 @@ func RunBacktest(symbol, strategyName string, candles []client.YahooOHLCV, strat
 			dailyReturns = append(dailyReturns, returnAfterCost)
 
 			// Update equity curve
-			if includeEquityCurve {
-				equityCurve = append(equityCurve, capital)
-			}
+			equityCurve = append(equityCurve, capital)
 		}
 	}
 
@@ -148,9 +146,7 @@ func RunBacktest(symbol, strategyName string, candles []client.YahooOHLCV, strat
 		trades = append(trades, trade)
 		dailyReturns = append(dailyReturns, returnAfterCost)
 
-		if includeEquityCurve {
-			equityCurve = append(equityCurve, capital)
-		}
+		equityCurve = append(equityCurve, capital)
 	}
 
 	result.FinalCapital = capital
