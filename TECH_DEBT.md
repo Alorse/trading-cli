@@ -37,8 +37,8 @@ Currently implemented (8/23+):
 | 10 | Hull MA | **DONE** | Batch 4 |
 | 11 | Stochastic RSI | **DONE** | Batch 4 |
 | 12 | Ultimate Oscillator | **DONE** | Batch 4 |
-| 13 | VWMA (Volume Weighted Moving Average) | PENDING | Batch 5 |
-| 14 | VWAP (Volume Weighted Average Price) | PENDING | Batch 5 |
+| 13 | VWMA (Volume Weighted Moving Average) | **DONE** | Batch 5 |
+| 14 | VWAP (Volume Weighted Average Price) | **DONE** | Batch 5 |
 
 **Acceptance criteria per indicator:**
 - `pkg/indicators/<name>.go` with pure-Go calculation
@@ -60,7 +60,7 @@ Expected: `0.0015` (0.15%). Actual: `0.00003` (0.003%). Costs are 100x smaller.
 
 **Fix:** Remove the second `/ 100`. Apply per-leg cost correctly.
 
-**Status:** PENDING (Batch 5)
+**Status:** **DONE** (Batch 5)
 
 ---
 
