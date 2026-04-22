@@ -34,9 +34,9 @@ Currently implemented (8/23+):
 | 7 | Momentum | **DONE** | Batch 3 |
 | 8 | Parabolic SAR | **DONE** | Batch 3 |
 | 9 | Ichimoku Cloud | **DONE** | Batch 3 |
-| 10 | Hull MA | PENDING | Batch 4 |
-| 11 | Stochastic RSI | PENDING | Batch 4 |
-| 12 | Ultimate Oscillator | PENDING | Batch 4 |
+| 10 | Hull MA | **DONE** | Batch 4 |
+| 11 | Stochastic RSI | **DONE** | Batch 4 |
+| 12 | Ultimate Oscillator | **DONE** | Batch 4 |
 | 13 | VWMA (Volume Weighted Moving Average) | PENDING | Batch 5 |
 | 14 | VWAP (Volume Weighted Average Price) | PENDING | Batch 5 |
 
