@@ -31,9 +31,9 @@ Currently implemented (8/23+):
 | 4 | CCI (Commodity Channel Index) | **DONE** | Batch 2 |
 | 5 | Williams %R | **DONE** | Batch 2 |
 | 6 | Awesome Oscillator | **DONE** | Batch 2 |
-| 7 | Momentum | PENDING | Batch 3 |
-| 8 | Parabolic SAR | PENDING | Batch 3 |
-| 9 | Ichimoku Cloud | PENDING | Batch 3 |
+| 7 | Momentum | **DONE** | Batch 3 |
+| 8 | Parabolic SAR | **DONE** | Batch 3 |
+| 9 | Ichimoku Cloud | **DONE** | Batch 3 |
 | 10 | Hull MA | PENDING | Batch 4 |
 | 11 | Stochastic RSI | PENDING | Batch 4 |
 | 12 | Ultimate Oscillator | PENDING | Batch 4 |
