@@ -1,8 +1,53 @@
 package screener
 
 import (
+	"strings"
+
 	"github.com/alorse/trading-cli/pkg/client"
 )
+
+// timeframeSuffix maps logical timeframes to TradingView column suffixes.
+// Empty string means the screener's default timeframe (1D).
+var timeframeSuffix = map[string]string{
+	"5m":  "|5",
+	"15m": "|15",
+	"1h":  "|60",
+	"4h":  "|240",
+	"1D":  "",
+	"1W":  "|1W",
+	"1M":  "|1M",
+}
+
+// applyTimeframe appends the TradingView timeframe suffix to each column.
+// For the default timeframe (1D) columns are returned unchanged.
+func applyTimeframe(columns []string, timeframe string) []string {
+	suffix := timeframeSuffix[timeframe]
+	if suffix == "" {
+		return columns
+	}
+	out := make([]string, len(columns))
+	for i, col := range columns {
+		out[i] = col + suffix
+	}
+	return out
+}
+
+// normalizeResults strips timeframe suffixes from column names in the response
+// so downstream code can read values using the original unsuffixed keys.
+func normalizeResults(results []client.TVSymbolData, timeframe string) []client.TVSymbolData {
+	suffix := timeframeSuffix[timeframe]
+	if suffix == "" {
+		return results
+	}
+	for i := range results {
+		normalized := make(map[string]interface{}, len(results[i].Values))
+		for k, v := range results[i].Values {
+			normalized[strings.TrimSuffix(k, suffix)] = v
+		}
+		results[i].Values = normalized
+	}
+	return results
+}
 
 // GetFloatFromInterface safely extracts a float64 from an interface{} map value
 // Returns 0 if the key is missing or the value is not a number

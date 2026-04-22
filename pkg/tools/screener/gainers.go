@@ -48,6 +48,9 @@ func RunTopGainers(cfg *config.Config, exchange, timeframe string, limit int) er
 		"change", "SMA20", "BB.upper", "BB.lower", "EMA50", "RSI",
 	}
 
+	// Apply timeframe suffix to columns
+	columns = applyTimeframe(columns, timeframe)
+
 	// Set up context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -57,6 +60,9 @@ func RunTopGainers(cfg *config.Config, exchange, timeframe string, limit int) er
 	if err != nil {
 		return fmt.Errorf("failed to fetch analysis data: %w", err)
 	}
+
+	// Normalize result keys back to unsuffixed names
+	results = normalizeResults(results, timeframe)
 
 	// Build entries and filter
 	entries := make([]*ScreenerEntry, 0)

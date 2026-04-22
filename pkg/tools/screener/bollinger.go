@@ -52,6 +52,9 @@ func RunBollingerScan(cfg *config.Config, exchange, timeframe string, bbwThresho
 		"change", "SMA20", "BB.upper", "BB.lower", "EMA50", "RSI",
 	}
 
+	// Apply timeframe suffix to columns
+	columns = applyTimeframe(columns, timeframe)
+
 	// Fetch up to limit*2 symbols (capped at total symbols)
 	fetchCount := limit * 2
 	if fetchCount > len(symbols) {
@@ -68,6 +71,9 @@ func RunBollingerScan(cfg *config.Config, exchange, timeframe string, bbwThresho
 	if err != nil {
 		return fmt.Errorf("failed to fetch analysis data: %w", err)
 	}
+
+	// Normalize result keys back to unsuffixed names
+	results = normalizeResults(results, timeframe)
 
 	// Build entries and filter
 	entries := make([]*ScreenerEntry, 0)
