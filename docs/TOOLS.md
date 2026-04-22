@@ -397,7 +397,7 @@ Backtesting uses Yahoo Finance historical data. Transaction costs (commission an
 | `rsi` | RSI oversold/overbought reversals |
 | `bollinger` | Bollinger Band mean reversion |
 | `macd` | MACD line/signal crossovers |
-| `ema-cross` | EMA 9/21 crossover |
+| `ema-cross` | EMA 20/50 crossover |
 | `supertrend` | Supertrend direction changes |
 | `donchian` | Donchian Channel breakout |
 

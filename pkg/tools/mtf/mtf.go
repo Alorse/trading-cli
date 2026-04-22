@@ -143,7 +143,7 @@ func computeBias(timeframe string, values map[string]interface{}) int {
 			score++ // golden cross
 		}
 		if rsi >= 40 && rsi <= 60 {
-			score = score // neutral, no bias
+			// neutral, no bias
 		} else if rsi > 60 {
 			score++
 		} else {

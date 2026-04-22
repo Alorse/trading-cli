@@ -1,7 +1,7 @@
 # Technical Debt & Implementation Tracker
 
 > Living document. Update after every batch of work.
-> Last updated: 2026-04-22
+> Last updated: 2026-04-22 (post-audit fixes applied)
 
 ---
 
@@ -61,6 +61,34 @@ Expected: `0.0015` (0.15%). Actual: `0.00003` (0.003%). Costs are 100x smaller.
 **Fix:** Remove the second `/ 100` in BOTH trade exit paths (sell signal + position close at last candle).
 
 **Status:** **DONE** (Batch 5 + post-audit fix)
+
+---
+
+## Post-Audit Critical Fixes (2026-04-22)
+
+### A1. MaxDrawdown always reports 0 — FIXED
+
+**File:** `pkg/tools/backtest/engine.go`
+**Problem:** `equityCurve` only populated when `includeEquityCurve=true`, but `calculateMaxDrawdown()` always ran against it. With flag=false (default in compare-strategies), curve was `[10000]` → MaxDrawdown=0 always.
+**Fix:** Always append to `equityCurve` on trade exits. Flag now only controls JSON serialization.
+**Status:** **DONE** — MaxDrawdown now returns -28.69 for BTC-USD 1y RSI backtest.
+
+### A2. Supertrend produces 0 trades — FIXED
+
+**File:** `pkg/indicators/supertrend.go`
+**Problem:** Band continuity logic was too aggressive — upper band never dropped, lower band never rose. With multiplier=3.0, bands became permanently detached from price, causing zero direction flips.
+**Fix:** Applied standard Supertrend band continuity: bands only stay at previous level if the previous close respected that level. Otherwise, bands adjust freely.
+**Status:** **DONE** — Supertrend now produces 7 trades for BTC-USD 1y (was 0). Donchian unchanged at 1 trade (matches reference).
+
+---
+
+## Divergence Analysis (2026-04-22)
+
+| # | Divergence | Verdict | Action |
+|---|-----------|---------|--------|
+| 3 | Change% formula: Go uses `(close-prevClose)/prevClose`, Python uses `(close-open)/open` | **Go is correct** — industry standard is prevClose-based. Python computes "change from open," a niche metric. | No action needed for Go. Python reference has a misnamed function. |
+| 4 | Volume ratio: Go uses TV `relative_volume_10d_calc`, Python uses `volume/SMA20` | **Both valid** — no single industry standard. TV uses 10d, breakout scanners often use 20d, StockCharts uses 50d. | Consider self-computing ratio with configurable lookback (default 20). Also fix naming: `Avg20` fields actually use 10d data. |
+| 5 | EMA cross periods: Go uses 20/50, Python uses 9/21 | **Go is spec-compliant** — REQUIREMENT.md specifies 20/50. Both pairs are widely used; 20/50 is more conservative and appropriate for a general CLI. | Fix docs: `docs/TOOLS.md` incorrectly documents "EMA 9/21" while code implements 20/50. Consider adding `--ema-fast` / `--ema-slow` flags. |
 
 ---
 
