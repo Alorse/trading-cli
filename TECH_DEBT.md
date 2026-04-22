@@ -25,9 +25,9 @@ Currently implemented (8/23+):
 
 | # | Indicator | Status | Batch |
 |---|-----------|--------|-------|
-| 1 | Stochastic (%K, %D) | PENDING | Batch 1 |
-| 2 | ADX (+DI, -DI) | PENDING | Batch 1 |
-| 3 | OBV (On-Balance Volume) | PENDING | Batch 1 |
+| 1 | Stochastic (%K, %D) | **DONE** | Batch 1 |
+| 2 | ADX (+DI, -DI) | **DONE** | Batch 1 |
+| 3 | OBV (On-Balance Volume) | **DONE** | Batch 1 |
 | 4 | CCI (Commodity Channel Index) | PENDING | Batch 2 |
 | 5 | Williams %R | PENDING | Batch 2 |
 | 6 | Awesome Oscillator | PENDING | Batch 2 |
