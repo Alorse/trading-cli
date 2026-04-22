@@ -51,54 +51,100 @@ func getFloat(values map[string]interface{}, key string) float64 {
 }
 
 // computeBias computes bias for a specific timeframe
-func computeBias(timeframe string, close, ema200, ema50, ema20, ema9, rsi, change, vwap float64) int {
+func computeBias(timeframe string, close, ema200, ema100, ema50, ema20, ema9, rsi, change, vwap, macdLine, macdSignal, relVolume float64) int {
 	switch timeframe {
 	case "1W":
-		// 1W: bias +1 if close > EMA200 AND RSI > 50, -1 if close < EMA200 AND RSI < 50, else 0
-		if close > ema200 && rsi > 50 {
+		score := 0
+		if ema100 > ema200 {
+			score++
+		}
+		if macdLine > macdSignal {
+			score++
+		}
+		if rsi > 50 {
+			score++
+		}
+		if score >= 2 {
 			return 1
 		}
-		if close < ema200 && rsi < 50 {
+		if score <= 0 {
 			return -1
 		}
 		return 0
 
 	case "1D":
-		// 1D: bias +1 if close > EMA50 AND close > EMA200, -1 if close < EMA50 AND close < EMA200, else 0
-		if close > ema50 && close > ema200 {
+		score := 0
+		if close > ema50 && ema50 > ema200 {
+			score++ // golden cross
+		}
+		if rsi >= 40 && rsi <= 60 {
+			score = score // neutral, no bias
+		} else if rsi > 60 {
+			score++
+		} else {
+			score--
+		}
+		if relVolume > 1.0 {
+			score++
+		}
+		if macdLine > macdSignal {
+			score++
+		}
+		if score >= 2 {
 			return 1
 		}
-		if close < ema50 && close < ema200 {
+		if score <= -1 {
 			return -1
 		}
 		return 0
 
 	case "4h":
-		// 4h: bias +1 if EMA20 > EMA50 AND change > 0, -1 if EMA20 < EMA50 AND change < 0, else 0
-		if ema20 > ema50 && change > 0 {
+		score := 0
+		if ema20 > ema50 {
+			score++
+		}
+		if macdLine > macdSignal {
+			score++
+		}
+		if score >= 2 {
 			return 1
 		}
-		if ema20 < ema50 && change < 0 {
+		if score <= 0 {
 			return -1
 		}
 		return 0
 
 	case "1h":
-		// 1h: bias +1 if close > VWAP AND change > 0, -1 if close < VWAP AND change < 0, else 0
-		if close > vwap && change > 0 {
+		score := 0
+		if close > ema20 {
+			score++
+		}
+		if relVolume > 1.5 {
+			score++
+		}
+		if close > vwap {
+			score++
+		}
+		if score >= 2 {
 			return 1
 		}
-		if close < vwap && change < 0 {
+		if score <= 0 {
 			return -1
 		}
 		return 0
 
 	case "15m":
-		// 15m: bias +1 if EMA9 > EMA20 AND change > 0, -1 if EMA9 < EMA20 AND change < 0, else 0
-		if ema9 > ema20 && change > 0 {
+		score := 0
+		if ema9 > ema20 {
+			score++
+		}
+		if close > vwap {
+			score++
+		}
+		if score >= 2 {
 			return 1
 		}
-		if ema9 < ema20 && change < 0 {
+		if score <= 0 {
 			return -1
 		}
 		return 0
@@ -114,58 +160,55 @@ func computeReason(timeframe string, bias int, values map[string]interface{}) st
 		return "Neutral conditions"
 	}
 
-	direction := "Bullish"
-	if bias < 0 {
-		direction = "Bearish"
-	}
-
 	switch timeframe {
 	case "1W":
-		close := getFloat(values, "close")
+		ema100 := getFloat(values, "EMA100")
 		ema200 := getFloat(values, "EMA200")
 		rsi := getFloat(values, "RSI")
 		if bias > 0 {
-			return fmt.Sprintf("Close above EMA200 (%.2f > %.2f) and RSI bullish (%.1f)", close, ema200, rsi)
+			return fmt.Sprintf("Bullish: EMA100 (%.2f) > EMA200 (%.2f), MACD bullish, RSI %.1f", ema100, ema200, rsi)
 		}
-		return fmt.Sprintf("Close below EMA200 (%.2f < %.2f) and RSI bearish (%.1f)", close, ema200, rsi)
+		return fmt.Sprintf("Bearish: EMA100 (%.2f) < EMA200 (%.2f), MACD bearish, RSI %.1f", ema100, ema200, rsi)
 
 	case "1D":
-		close := getFloat(values, "close")
-		ema50 := getFloat(values, "EMA50")
-		ema200 := getFloat(values, "EMA200")
+		rsi := getFloat(values, "RSI")
+		relVolume := getFloat(values, "relative_volume_10d_calc")
 		if bias > 0 {
-			return fmt.Sprintf("Close above both EMAs (%.2f > EMA50: %.2f > EMA200: %.2f)", close, ema50, ema200)
+			return fmt.Sprintf("Golden cross, RSI %.1f, volume ratio %.2fx, MACD bullish", rsi, relVolume)
 		}
-		return fmt.Sprintf("Close below both EMAs (%.2f < EMA50: %.2f < EMA200: %.2f)", close, ema50, ema200)
+		return fmt.Sprintf("Death cross or weak momentum, RSI %.1f, volume ratio %.2fx, MACD bearish", rsi, relVolume)
 
 	case "4h":
 		ema20 := getFloat(values, "EMA20")
 		ema50 := getFloat(values, "EMA50")
-		change := getFloat(values, "change")
 		if bias > 0 {
-			return fmt.Sprintf("EMA20 > EMA50 (%.2f > %.2f) with positive change (%.2f%%)", ema20, ema50, change)
+			return fmt.Sprintf("EMA20 (%.2f) > EMA50 (%.2f), MACD bullish", ema20, ema50)
 		}
-		return fmt.Sprintf("EMA20 < EMA50 (%.2f < %.2f) with negative change (%.2f%%)", ema20, ema50, change)
+		return fmt.Sprintf("EMA20 (%.2f) < EMA50 (%.2f), MACD bearish", ema20, ema50)
 
 	case "1h":
 		close := getFloat(values, "close")
 		vwap := getFloat(values, "VWAP")
-		change := getFloat(values, "change")
+		relVolume := getFloat(values, "relative_volume_10d_calc")
 		if bias > 0 {
-			return fmt.Sprintf("Close above VWAP (%.2f > %.2f) with positive change (%.2f%%)", close, vwap, change)
+			return fmt.Sprintf("Close above EMA20 (%.2f) and VWAP (%.2f), volume spike %.2fx", close, vwap, relVolume)
 		}
-		return fmt.Sprintf("Close below VWAP (%.2f < %.2f) with negative change (%.2f%%)", close, vwap, change)
+		return fmt.Sprintf("Close below EMA20 (%.2f) or VWAP (%.2f), volume %.2fx", close, vwap, relVolume)
 
 	case "15m":
 		ema9 := getFloat(values, "EMA9")
 		ema20 := getFloat(values, "EMA20")
-		change := getFloat(values, "change")
+		vwap := getFloat(values, "VWAP")
 		if bias > 0 {
-			return fmt.Sprintf("EMA9 > EMA20 (%.2f > %.2f) with positive change (%.2f%%)", ema9, ema20, change)
+			return fmt.Sprintf("EMA9 (%.2f) > EMA20 (%.2f), above VWAP (%.2f)", ema9, ema20, vwap)
 		}
-		return fmt.Sprintf("EMA9 < EMA20 (%.2f < %.2f) with negative change (%.2f%%)", ema9, ema20, change)
+		return fmt.Sprintf("EMA9 (%.2f) < EMA20 (%.2f), below VWAP (%.2f)", ema9, ema20, vwap)
 
 	default:
+		direction := "Bullish"
+		if bias < 0 {
+			direction = "Bearish"
+		}
 		return fmt.Sprintf("%s conditions detected", direction)
 	}
 }
@@ -310,10 +353,14 @@ func RunMultiTimeframe(cfg *config.Config, symbol, exchange string) error {
 	ema9 := getFloat(values, "EMA9")
 	ema20 := getFloat(values, "EMA20")
 	ema50 := getFloat(values, "EMA50")
+	ema100 := getFloat(values, "EMA100")
 	ema200 := getFloat(values, "EMA200")
 	rsi := getFloat(values, "RSI")
 	change := getFloat(values, "change")
 	vwap := getFloat(values, "VWAP")
+	macdLine := getFloat(values, "MACD.macd")
+	macdSignal := getFloat(values, "MACD.signal")
+	relVolume := getFloat(values, "relative_volume_10d_calc")
 
 	// Analyze each timeframe
 	timeframes := []string{"1W", "1D", "4h", "1h", "15m"}
@@ -322,7 +369,7 @@ func RunMultiTimeframe(cfg *config.Config, symbol, exchange string) error {
 	totalBias := 0
 
 	for i, tf := range timeframes {
-		bias := computeBias(tf, close, ema200, ema50, ema20, ema9, rsi, change, vwap)
+		bias := computeBias(tf, close, ema200, ema100, ema50, ema20, ema9, rsi, change, vwap, macdLine, macdSignal, relVolume)
 		reason := computeReason(tf, bias, values)
 
 		timeframeAnalyses[i] = TimeframeAnalysis{
