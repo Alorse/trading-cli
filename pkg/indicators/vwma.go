@@ -28,3 +28,4 @@ func VWMA(closes []float64, volumes []float64, period int) []float64 {
 
 	return result
 }
+
