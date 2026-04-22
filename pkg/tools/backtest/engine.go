@@ -130,7 +130,7 @@ func RunBacktest(symbol, strategyName string, candles []client.YahooOHLCV, strat
 	if inPosition {
 		exitPrice := candles[len(candles)-1].Close
 		returnBeforeCost := (exitPrice - entryPrice) / entryPrice
-		transactionCost := costPerTrade / 100
+		transactionCost := costPerTrade
 		returnAfterCost := returnBeforeCost - transactionCost
 
 		returnPct := returnAfterCost * 100

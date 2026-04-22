@@ -216,6 +216,7 @@ func BuildCoinAnalysisOutput(symbol, exchange, timeframe string, values map[stri
 	high := getFloat(values, "high")
 	low := getFloat(values, "low")
 	volume := getFloat(values, "volume")
+	avgVolume := getFloat(values, "average_volume_10d_calc")
 	change := getFloat(values, "change")
 
 	rsi := getFloat(values, "RSI")
@@ -262,8 +263,10 @@ func BuildCoinAnalysisOutput(symbol, exchange, timeframe string, values map[stri
 	recMA := getFloat(values, "Recommend.MA")
 	recOther := getFloat(values, "Recommend.Other")
 
-	// Volume ratio not available from scanner; default to 1
 	volumeRatio := 1.0
+	if avgVolume > 0 {
+		volumeRatio = volume / avgVolume
+	}
 
 	bbWidth := 0.0
 	if sma20 > 0 {
@@ -320,7 +323,7 @@ func BuildCoinAnalysisOutput(symbol, exchange, timeframe string, values map[stri
 		ADX: adx,
 		Volume: VolumeData{
 			Current: volume,
-			Avg20:   0,
+			Avg20:   avgVolume,
 			Ratio:   volumeRatio,
 		},
 		Stochastic: StochasticData{
