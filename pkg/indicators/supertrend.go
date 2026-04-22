@@ -43,15 +43,16 @@ func Supertrend(highs, lows, closes []float64, period int, multiplier float64) S
 			finalUpperBand[i] = upperBand[i]
 			finalLowerBand[i] = lowerBand[i]
 		} else {
-			// Upper band should not be lower than previous bar
-			finalUpperBand[i] = upperBand[i]
-			if finalUpperBand[i] < finalUpperBand[i-1] {
+			// Upper band: allow drop freely; don't rise unless price broke above
+			if upperBand[i] < finalUpperBand[i-1] || closes[i-1] > finalUpperBand[i-1] {
+				finalUpperBand[i] = upperBand[i]
+			} else {
 				finalUpperBand[i] = finalUpperBand[i-1]
 			}
-
-			// Lower band should not be higher than previous bar
-			finalLowerBand[i] = lowerBand[i]
-			if finalLowerBand[i] > finalLowerBand[i-1] {
+			// Lower band: allow rise freely; don't drop unless price broke below
+			if lowerBand[i] > finalLowerBand[i-1] || closes[i-1] < finalLowerBand[i-1] {
+				finalLowerBand[i] = lowerBand[i]
+			} else {
 				finalLowerBand[i] = finalLowerBand[i-1]
 			}
 		}
