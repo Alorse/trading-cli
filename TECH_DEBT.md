@@ -58,9 +58,9 @@ transactionCost := costPerTrade / 100                     // 0.003 -> 0.00003
 ```
 Expected: `0.0015` (0.15%). Actual: `0.00003` (0.003%). Costs are 100x smaller.
 
-**Fix:** Remove the second `/ 100`. Apply per-leg cost correctly.
+**Fix:** Remove the second `/ 100` in BOTH trade exit paths (sell signal + position close at last candle).
 
-**Status:** **DONE** (Batch 5)
+**Status:** **DONE** (Batch 5 + post-audit fix)
 
 ---
 
@@ -91,7 +91,7 @@ The REQUIREMENT specifies 23+ indicator groups. Current implementation extracts 
 
 **Dependencies:** Blocked until all P0 indicators are implemented.
 
-**Status:** **DONE** (Batch 6 — wired CCI, Williams %R, AO, Momentum, Parabolic SAR, Ichimoku, Hull MA, Stochastic RSI, Ultimate Oscillator, VWAP, VWMA into output. OBV remains unavailable from TV scanner.)
+**Status:** **DONE** (Batch 6 — wired CCI, Williams %R, AO, Momentum, Parabolic SAR, Ichimoku, Hull MA, Stochastic RSI, Ultimate Oscillator, VWAP, VWMA into output. OBV remains unavailable from TV scanner. Post-audit fix: Avg20 now uses `average_volume_10d_calc` from TV instead of hardcoded 0.)
 
 ### 4. `multi-timeframe-analysis` — Oversimplified Logic
 
@@ -103,7 +103,7 @@ The REQUIREMENT specifies 23+ indicator groups. Current implementation extracts 
 | 1h | EMA20 dynamic S/R, volume spikes, VWAP | `close > VWAP && change > 0` only |
 | 15m | EMA9/20 fast crossover, VWAP institutional | `EMA9 > EMA20 && change > 0` only |
 
-**Status:** **DONE** (Batch 6 — expanded to full scoring logic per spec)
+**Status:** **DONE** (Batch 6 — expanded scoring logic; post-audit fix: now fetches real per-timeframe data using TV column suffixes |1W, |240, |60, |15)
 
 ### 5. `rating-filter` — Wrong Default Timeframe
 
