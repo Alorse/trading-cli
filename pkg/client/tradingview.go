@@ -67,7 +67,7 @@ func (c *TradingViewClient) GetMultipleAnalysis(ctx context.Context, screener st
 		columns = DefaultColumns
 	}
 
-	const batchSize = 200
+	const batchSize = 100
 	var results []TVSymbolData
 
 	for i := 0; i < len(tickers); i += batchSize {

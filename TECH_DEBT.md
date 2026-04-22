@@ -1,7 +1,7 @@
 # Technical Debt & Implementation Tracker
 
 > Living document. Update after every batch of work.
-> Last updated: 2026-04-22 (post-audit fixes applied)
+> Last updated: 2026-04-22 (Batch 7 complete — all P0/P1/P2 resolved)
 
 ---
 
@@ -139,7 +139,7 @@ The REQUIREMENT specifies 23+ indicator groups. Current implementation extracts 
 |------|------|--------|
 | `--timeframe` | `5m` | `15m` |
 
-**Status:** PENDING (one-line fix)
+**Status:** **DONE** (Batch 7)
 
 ---
 
@@ -150,21 +150,21 @@ The REQUIREMENT specifies 23+ indicator groups. Current implementation extracts 
 Spec says: *"Technical bullish if change > 0"*
 Actual: Uses `MarketStructure.Trend == "bullish"` (requires `close > EMA50 && EMA50 > EMA200`).
 
-**Status:** PENDING
+**Status:** **DONE** (Batch 7)
 
 ### 7. `volume-breakout-scanner` — Missing Batch Logic
 
 Spec says: *"Fetch symbols in batches of 100 (up to 500)"*
 Actual: Loads 500 symbols and sends in a single request.
 
-**Status:** PENDING
+**Status:** **DONE** (Batch 7 — changed `GetMultipleAnalysis` batch size from 200 to 100)
 
 ### 8. CI/CD — GitHub Actions Missing
 
 Spec says: *"CI should run tests on every commit (GitHub Actions recommended)"*
 Actual: No `.github/workflows/` directory.
 
-**Status:** PENDING
+**Status:** **DONE** (Batch 7 — created `.github/workflows/ci.yml` with test, vet, fmt, build steps)
 
 ---
 

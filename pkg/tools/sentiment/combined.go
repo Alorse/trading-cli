@@ -246,7 +246,7 @@ func computeConfluence(technicalData json.RawMessage, sentimentScore float64) Co
 	var techAnalysis analysis.CoinAnalysisOutput
 	_ = json.Unmarshal(technicalData, &techAnalysis)
 
-	techBullish := techAnalysis.MarketStructure.Trend == "bullish"
+	techBullish := techAnalysis.Price.ChangePercent > 0
 	sentBullish := sentimentScore > 0.1
 
 	signalsAgree := (techBullish && sentBullish) || (!techBullish && !sentBullish)

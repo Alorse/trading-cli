@@ -79,7 +79,7 @@ func runBollingerScan(cfg *config.Config) error {
 func runRatingFilter(cfg *config.Config) error {
 	fs := flag.NewFlagSet("rating-filter", flag.ContinueOnError)
 	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
-	timeframe := fs.String("timeframe", "15m", "Timeframe")
+	timeframe := fs.String("timeframe", "5m", "Timeframe")
 	rating := fs.Int("rating", 2, "Bollinger Band rating (-3 to 3)")
 	limit := fs.Int("limit", 25, "Number of results")
 	fs.Parse(os.Args[2:])
