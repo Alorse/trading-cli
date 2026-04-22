@@ -133,7 +133,7 @@ trading-cli rating-filter --exchange BINANCE --timeframe 4h --rating 2
 
 ### coin-analysis
 
-Full technical analysis for a single symbol. Returns 23+ indicator groups including RSI, MACD, Bollinger Bands, SMA/EMA, ATR, ADX, Stochastic, market structure, and pivot levels.
+Full technical analysis for a single symbol. Returns 34+ indicator groups including RSI, MACD, Bollinger Bands, SMA/EMA, ATR, ADX, Stochastic, CCI, Williams %R, Awesome Oscillator, Momentum, Parabolic SAR, Ichimoku Cloud, Hull MA, Stochastic RSI, Ultimate Oscillator, VWAP, VWMA, market structure, and pivot levels.
 
 ```bash
 trading-cli coin-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 4h
@@ -156,6 +156,17 @@ trading-cli coin-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 4h
 - `atr` — Average True Range
 - `adx` — Trend strength
 - `stochastic` — %K and %D
+- `cci` — Value, signal (overbought/oversold/neutral)
+- `williamsR` — Value
+- `awesomeOscillator` — Value
+- `momentum` — Value
+- `parabolicSAR` — Value
+- `ichimoku` — Base line
+- `hullMA` — Value
+- `stochasticRSI` — K value
+- `ultimateOscillator` — Value
+- `vwap` — Value
+- `vwma` — Value
 - `recommendation` — TradingView aggregate (all, MA, other)
 - `marketStructure` — Trend, trend score, momentum alignment
 
@@ -163,7 +174,13 @@ trading-cli coin-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 4h
 
 ### multi-timeframe-analysis
 
-Analyzes 5 timeframes (5m, 15m, 1h, 4h, 1D) simultaneously to detect trend alignment and divergences.
+Analyzes 5 timeframes (1W, 1D, 4h, 1h, 15m) simultaneously to detect trend alignment and divergences. Each timeframe evaluates specific signals:
+
+- **1W**: EMA100/200 trend direction + MACD momentum + RSI
+- **1D**: Golden/death cross + RSI zone + volume ratio + MACD
+- **4h**: EMA20/50 alignment + MACD crossover
+- **1h**: EMA20 support/resistance + volume spikes + VWAP
+- **15m**: EMA9/20 alignment + VWAP
 
 ```bash
 trading-cli multi-timeframe-analysis --symbol ETHUSDT --exchange BINANCE --timeframe 4h
@@ -359,7 +376,7 @@ trading-cli combined-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 4h 
 
 ## Backtesting
 
-Backtesting uses Yahoo Finance historical data. Use Yahoo-compatible symbols:
+Backtesting uses Yahoo Finance historical data. Transaction costs (commission and slippage percentages) are applied correctly per trade. Use Yahoo-compatible symbols:
 - **Crypto**: `BTC-USD`, `ETH-USD`
 - **Stocks**: `AAPL`, `GOOGL`, `TSLA`
 

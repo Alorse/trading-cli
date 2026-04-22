@@ -8,7 +8,7 @@ Designed to be used as a CLI tool or wrapped as an MCP (Model Context Protocol) 
 ## Features
 
 - **Screener Tools** — Top gainers/losers, Bollinger Band scans, rating filters
-- **Single Asset Analysis** — Full technical analysis with 23+ indicator groups
+- **Single Asset Analysis** — Full technical analysis with 34+ indicator groups
 - **Candle Pattern Detection** — Consecutive candles, advanced multi-candle patterns
 - **Volume Scanners** — Breakout detection, confirmation analysis, smart volume with RSI
 - **Multi-Timeframe Analysis** — Cross-timeframe alignment and divergence detection
