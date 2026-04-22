@@ -23,11 +23,11 @@ type NewsItem struct {
 
 // NewsOutput represents the JSON output for financial news
 type NewsOutput struct {
-	Symbol    string      `json:"symbol"`
-	Category  string      `json:"category"`
-	Count     int         `json:"count"`
-	Items     []NewsItem  `json:"items"`
-	Timestamp time.Time   `json:"timestamp"`
+	Symbol    string     `json:"symbol"`
+	Category  string     `json:"category"`
+	Count     int        `json:"count"`
+	Items     []NewsItem `json:"items"`
+	Timestamp time.Time  `json:"timestamp"`
 }
 
 // RunFinancialNews fetches and displays financial news based on symbol and category

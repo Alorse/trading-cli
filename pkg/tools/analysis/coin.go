@@ -13,18 +13,18 @@ import (
 
 // CoinAnalysisOutput represents the comprehensive coin analysis output
 type CoinAnalysisOutput struct {
-	Symbol          string              `json:"symbol"`
-	Exchange        string              `json:"exchange"`
-	Timeframe       string              `json:"timeframe"`
-	Price           PriceData           `json:"price"`
-	RSI             RSIData             `json:"rsi"`
-	MACD            MACDData            `json:"macd"`
-	SMA             map[string]float64  `json:"sma"`
-	EMA             map[string]float64  `json:"ema"`
-	BollingerBands  BollingerBandsData  `json:"bollingerBands"`
-	ATR             float64             `json:"atr"`
-	ADX             float64             `json:"adx"`
-	Volume          VolumeData          `json:"volume"`
+	Symbol             string              `json:"symbol"`
+	Exchange           string              `json:"exchange"`
+	Timeframe          string              `json:"timeframe"`
+	Price              PriceData           `json:"price"`
+	RSI                RSIData             `json:"rsi"`
+	MACD               MACDData            `json:"macd"`
+	SMA                map[string]float64  `json:"sma"`
+	EMA                map[string]float64  `json:"ema"`
+	BollingerBands     BollingerBandsData  `json:"bollingerBands"`
+	ATR                float64             `json:"atr"`
+	ADX                float64             `json:"adx"`
+	Volume             VolumeData          `json:"volume"`
 	Stochastic         StochasticData      `json:"stochastic"`
 	CCI                CCIData             `json:"cci"`
 	WilliamsR          WilliamsRData       `json:"williamsR"`
@@ -38,17 +38,17 @@ type CoinAnalysisOutput struct {
 	VWAP               float64             `json:"vwap"`
 	VWMA               float64             `json:"vwma"`
 	Recommendation     RecommendationData  `json:"recommendation"`
-	MarketStructure MarketStructureData `json:"marketStructure"`
-	Timestamp       string              `json:"timestamp"`
+	MarketStructure    MarketStructureData `json:"marketStructure"`
+	Timestamp          string              `json:"timestamp"`
 }
 
 type PriceData struct {
-	Open           float64 `json:"open"`
-	High           float64 `json:"high"`
-	Low            float64 `json:"low"`
-	Close          float64 `json:"close"`
-	ChangePercent  float64 `json:"changePercent"`
-	Volume         float64 `json:"volume"`
+	Open          float64 `json:"open"`
+	High          float64 `json:"high"`
+	Low           float64 `json:"low"`
+	Close         float64 `json:"close"`
+	ChangePercent float64 `json:"changePercent"`
+	Volume        float64 `json:"volume"`
 }
 
 type RSIData struct {
@@ -89,9 +89,9 @@ type RecommendationData struct {
 }
 
 type MarketStructureData struct {
-	Trend               string  `json:"trend"`
-	TrendScore          int     `json:"trendScore"`
-	MomentumAlignment   float64 `json:"momentumAlignment"`
+	Trend             string  `json:"trend"`
+	TrendScore        int     `json:"trendScore"`
+	MomentumAlignment float64 `json:"momentumAlignment"`
 }
 
 type CCIData struct {

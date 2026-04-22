@@ -18,15 +18,15 @@ type YahooOHLCV struct {
 }
 
 type YahooMeta struct {
-	Symbol              string  `json:"symbol"`
-	Currency            string  `json:"currency"`
-	ExchangeName        string  `json:"exchangeName"`
-	RegularMarketPrice  float64 `json:"regularMarketPrice"`
-	PreviousClose       float64 `json:"previousClose"`
-	ChartPreviousClose  float64 `json:"chartPreviousClose"`
-	FiftyTwoWeekHigh    float64 `json:"fiftyTwoWeekHigh"`
-	FiftyTwoWeekLow     float64 `json:"fiftyTwoWeekLow"`
-	MarketState         string  `json:"marketState"`
+	Symbol             string  `json:"symbol"`
+	Currency           string  `json:"currency"`
+	ExchangeName       string  `json:"exchangeName"`
+	RegularMarketPrice float64 `json:"regularMarketPrice"`
+	PreviousClose      float64 `json:"previousClose"`
+	ChartPreviousClose float64 `json:"chartPreviousClose"`
+	FiftyTwoWeekHigh   float64 `json:"fiftyTwoWeekHigh"`
+	FiftyTwoWeekLow    float64 `json:"fiftyTwoWeekLow"`
+	MarketState        string  `json:"marketState"`
 }
 
 // EffectivePreviousClose returns the best available previous close value.

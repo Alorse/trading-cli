@@ -8,18 +8,18 @@ import (
 func TestComputeStockScore(t *testing.T) {
 	// Test case: all indicators bullish
 	values := map[string]interface{}{
-		"close":           100.0,
-		"EMA50":           95.0,
-		"EMA200":          90.0,
-		"RSI":             65.0,
-		"MACD.macd":       2.0,
-		"MACD.signal":     1.0,
-		"volume":          1000.0,
-		"volume.SMA20":    500.0,
-		"ADX":             30.0,
-		"Recommend.All":   1.0,
-		"BB.lower":        98.0,
-		"BB.upper":        102.0,
+		"close":         100.0,
+		"EMA50":         95.0,
+		"EMA200":        90.0,
+		"RSI":           65.0,
+		"MACD.macd":     2.0,
+		"MACD.signal":   1.0,
+		"volume":        1000.0,
+		"volume.SMA20":  500.0,
+		"ADX":           30.0,
+		"Recommend.All": 1.0,
+		"BB.lower":      98.0,
+		"BB.upper":      102.0,
 	}
 
 	score, components := computeStockScore(values)
@@ -54,18 +54,18 @@ func TestComputeStockScore(t *testing.T) {
 func TestComputeStockScoreBearish(t *testing.T) {
 	// Test case: all indicators bearish
 	values := map[string]interface{}{
-		"close":           50.0,
-		"EMA50":           55.0,
-		"EMA200":          60.0,
-		"RSI":             25.0,
-		"MACD.macd":       -1.0,
-		"MACD.signal":     -0.5,
-		"volume":          200.0,
-		"volume.SMA20":    500.0,
-		"ADX":             15.0,
-		"Recommend.All":   -1.0,
-		"BB.lower":        45.0,
-		"BB.upper":        55.0,
+		"close":         50.0,
+		"EMA50":         55.0,
+		"EMA200":        60.0,
+		"RSI":           25.0,
+		"MACD.macd":     -1.0,
+		"MACD.signal":   -0.5,
+		"volume":        200.0,
+		"volume.SMA20":  500.0,
+		"ADX":           15.0,
+		"Recommend.All": -1.0,
+		"BB.lower":      45.0,
+		"BB.upper":      55.0,
 	}
 
 	score, _ := computeStockScore(values)
@@ -161,10 +161,10 @@ func TestComputeTradeQualityPoor(t *testing.T) {
 // TestGetRecommendation verifies recommendation logic
 func TestGetRecommendation(t *testing.T) {
 	tests := []struct {
-		score       int
-		quality     int
-		rr2         float64
-		expected    string
+		score    int
+		quality  int
+		rr2      float64
+		expected string
 	}{
 		{75, 70, 2.5, "QUALIFIED"},
 		{72, 65, 2.1, "QUALIFIED"},

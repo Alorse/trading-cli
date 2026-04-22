@@ -201,7 +201,7 @@ func TestComputeBBRating(t *testing.T) {
 		{
 			"close > bbUpper (+3)",
 			map[string]interface{}{
-				"close":     111.0,
+				"close":    111.0,
 				"BB.upper": 110.0,
 				"BB.lower": 90.0,
 				"SMA20":    100.0,
@@ -211,7 +211,7 @@ func TestComputeBBRating(t *testing.T) {
 		{
 			"close > middle + (upper-middle)/2 (+2)",
 			map[string]interface{}{
-				"close":     105.5,
+				"close":    105.5,
 				"BB.upper": 110.0,
 				"BB.lower": 90.0,
 				"SMA20":    100.0,
@@ -221,7 +221,7 @@ func TestComputeBBRating(t *testing.T) {
 		{
 			"close > middle (+1)",
 			map[string]interface{}{
-				"close":     102.0,
+				"close":    102.0,
 				"BB.upper": 110.0,
 				"BB.lower": 90.0,
 				"SMA20":    100.0,
@@ -231,7 +231,7 @@ func TestComputeBBRating(t *testing.T) {
 		{
 			"close < middle (-1)",
 			map[string]interface{}{
-				"close":     98.0,
+				"close":    98.0,
 				"BB.upper": 110.0,
 				"BB.lower": 90.0,
 				"SMA20":    100.0,
@@ -241,7 +241,7 @@ func TestComputeBBRating(t *testing.T) {
 		{
 			"close < middle - (middle-lower)/2 (-2)",
 			map[string]interface{}{
-				"close":     94.5,
+				"close":    94.5,
 				"BB.upper": 110.0,
 				"BB.lower": 90.0,
 				"SMA20":    100.0,
@@ -251,7 +251,7 @@ func TestComputeBBRating(t *testing.T) {
 		{
 			"close < bbLower (-3)",
 			map[string]interface{}{
-				"close":     89.0,
+				"close":    89.0,
 				"BB.upper": 110.0,
 				"BB.lower": 90.0,
 				"SMA20":    100.0,
@@ -291,9 +291,9 @@ func TestBuildEntry(t *testing.T) {
 			client.TVSymbolData{
 				Symbol: "BINANCE:BTCUSDT",
 				Values: map[string]interface{}{
-					"open":      50000.0,
-					"close":     50500.0,
-					"SMA20":     49000.0,
+					"open":     50000.0,
+					"close":    50500.0,
+					"SMA20":    49000.0,
 					"BB.upper": 51000.0,
 					"BB.lower": 48000.0,
 					"EMA50":    49500.0,
@@ -335,7 +335,7 @@ func TestBuildEntry(t *testing.T) {
 			client.TVSymbolData{
 				Symbol: "BINANCE:ADAUSDT",
 				Values: map[string]interface{}{
-					"close":  1.2,
+					"close": 1.2,
 					"EMA50": 1.1,
 				},
 			},

@@ -13,22 +13,22 @@ import (
 
 // AdvancedCandleEntry represents an advanced candle pattern entry
 type AdvancedCandleEntry struct {
-	Symbol       string  `json:"symbol"`
-	Score        int     `json:"score"`
-	BodyRatio    float64 `json:"bodyRatio"`
-	Change       float64 `json:"change"`
-	Volume       float64 `json:"volume"`
-	RSI          float64 `json:"rsi"`
-	Direction    string  `json:"direction"`
+	Symbol    string  `json:"symbol"`
+	Score     int     `json:"score"`
+	BodyRatio float64 `json:"bodyRatio"`
+	Change    float64 `json:"change"`
+	Volume    float64 `json:"volume"`
+	RSI       float64 `json:"rsi"`
+	Direction string  `json:"direction"`
 }
 
 // AdvancedCandleResult represents the complete scan result
 type AdvancedCandleResult struct {
-	Exchange          string                   `json:"exchange"`
-	BaseTimeframe     string                   `json:"baseTimeframe"`
-	MinSizeIncrease   float64                  `json:"minSizeIncrease"`
-	TotalFound        int                      `json:"totalFound"`
-	Data              []AdvancedCandleEntry    `json:"data"`
+	Exchange        string                `json:"exchange"`
+	BaseTimeframe   string                `json:"baseTimeframe"`
+	MinSizeIncrease float64               `json:"minSizeIncrease"`
+	TotalFound      int                   `json:"totalFound"`
+	Data            []AdvancedCandleEntry `json:"data"`
 }
 
 // getFloatAdv safely extracts a float64 value

@@ -25,58 +25,58 @@ type TradeSetup struct {
 
 // TradePlanOutput represents the complete trade plan JSON output
 type TradePlanOutput struct {
-	Symbol       string      `json:"symbol"`
-	Exchange     string      `json:"exchange"`
-	Timeframe    string      `json:"timeframe"`
-	StockScore   int         `json:"stockScore"`
-	Grade        string      `json:"grade"`
-	TradeQuality int         `json:"tradeQuality"`
-	Setup        TradeSetup  `json:"setup"`
-	Recommendation string    `json:"recommendation"`
-	Details      TradeDetails `json:"details"`
-	Timestamp    time.Time   `json:"timestamp"`
+	Symbol         string       `json:"symbol"`
+	Exchange       string       `json:"exchange"`
+	Timeframe      string       `json:"timeframe"`
+	StockScore     int          `json:"stockScore"`
+	Grade          string       `json:"grade"`
+	TradeQuality   int          `json:"tradeQuality"`
+	Setup          TradeSetup   `json:"setup"`
+	Recommendation string       `json:"recommendation"`
+	Details        TradeDetails `json:"details"`
+	Timestamp      time.Time    `json:"timestamp"`
 }
 
 // TradeDetails provides breakdown of scores and analysis
 type TradeDetails struct {
-	ScoreComponents ScoreComponents `json:"scoreComponents"`
+	ScoreComponents  ScoreComponents  `json:"scoreComponents"`
 	QualityBreakdown QualityBreakdown `json:"qualityBreakdown"`
-	Indicators IndicatorValues `json:"indicators"`
+	Indicators       IndicatorValues  `json:"indicators"`
 }
 
 // ScoreComponents breaks down the stock score
 type ScoreComponents struct {
 	EMAAlignment int `json:"emaAlignment"`
-	RSIScore int `json:"rsiScore"`
-	MACDScore int `json:"macdScore"`
-	VolumeScore int `json:"volumeScore"`
-	ADXScore int `json:"adxScore"`
+	RSIScore     int `json:"rsiScore"`
+	MACDScore    int `json:"macdScore"`
+	VolumeScore  int `json:"volumeScore"`
+	ADXScore     int `json:"adxScore"`
 }
 
 // QualityBreakdown breaks down quality score by component
 type QualityBreakdown struct {
-	Structure int `json:"structure"`
+	Structure  int `json:"structure"`
 	RewardRisk int `json:"rewardRisk"`
-	Volume int `json:"volume"`
-	StopSize int `json:"stopSize"`
-	Liquidity int `json:"liquidity"`
+	Volume     int `json:"volume"`
+	StopSize   int `json:"stopSize"`
+	Liquidity  int `json:"liquidity"`
 }
 
 // IndicatorValues holds raw indicator values
 type IndicatorValues struct {
-	Close float64 `json:"close"`
-	EMA50 float64 `json:"ema50"`
-	EMA200 float64 `json:"ema200"`
-	RSI float64 `json:"rsi"`
-	MACD float64 `json:"macd"`
-	MACDSignal float64 `json:"macdSignal"`
+	Close       float64 `json:"close"`
+	EMA50       float64 `json:"ema50"`
+	EMA200      float64 `json:"ema200"`
+	RSI         float64 `json:"rsi"`
+	MACD        float64 `json:"macd"`
+	MACDSignal  float64 `json:"macdSignal"`
 	VolumeRatio float64 `json:"volumeRatio"`
-	ATR float64 `json:"atr"`
-	ADX float64 `json:"adx"`
-	Recommend float64 `json:"recommend"`
-	BBLower float64 `json:"bbLower"`
-	BBUpper float64 `json:"bbUpper"`
-	PivotR1 float64 `json:"pivotR1"`
+	ATR         float64 `json:"atr"`
+	ADX         float64 `json:"adx"`
+	Recommend   float64 `json:"recommend"`
+	BBLower     float64 `json:"bbLower"`
+	BBUpper     float64 `json:"bbUpper"`
+	PivotR1     float64 `json:"pivotR1"`
 }
 
 // computeStockScore calculates the stock score (0-100) based on indicators
@@ -332,31 +332,31 @@ func RunTradePlan(cfg *config.Config, symbol, exchange, timeframe string) error 
 
 	// Build output
 	output := TradePlanOutput{
-		Symbol:       ticker,
-		Exchange:     exchange,
-		Timeframe:    timeframe,
-		StockScore:   score,
-		Grade:        grade,
-		TradeQuality: quality,
-		Setup:        setup,
+		Symbol:         ticker,
+		Exchange:       exchange,
+		Timeframe:      timeframe,
+		StockScore:     score,
+		Grade:          grade,
+		TradeQuality:   quality,
+		Setup:          setup,
 		Recommendation: recommendation,
 		Details: TradeDetails{
-			ScoreComponents: components,
+			ScoreComponents:  components,
 			QualityBreakdown: breakdown,
 			Indicators: IndicatorValues{
-				Close:      close,
-				EMA50:      screener.GetFloatFromInterface(values, "EMA50"),
-				EMA200:     screener.GetFloatFromInterface(values, "EMA200"),
-				RSI:        rsi,
-				MACD:       screener.GetFloatFromInterface(values, "MACD.macd"),
-				MACDSignal: screener.GetFloatFromInterface(values, "MACD.signal"),
+				Close:       close,
+				EMA50:       screener.GetFloatFromInterface(values, "EMA50"),
+				EMA200:      screener.GetFloatFromInterface(values, "EMA200"),
+				RSI:         rsi,
+				MACD:        screener.GetFloatFromInterface(values, "MACD.macd"),
+				MACDSignal:  screener.GetFloatFromInterface(values, "MACD.signal"),
 				VolumeRatio: volumeRatio,
-				ATR:        atr,
-				ADX:        screener.GetFloatFromInterface(values, "ADX"),
-				Recommend:  screener.GetFloatFromInterface(values, "Recommend.All"),
-				BBLower:    screener.GetFloatFromInterface(values, "BB.lower"),
-				BBUpper:    screener.GetFloatFromInterface(values, "BB.upper"),
-				PivotR1:    pivotR1,
+				ATR:         atr,
+				ADX:         screener.GetFloatFromInterface(values, "ADX"),
+				Recommend:   screener.GetFloatFromInterface(values, "Recommend.All"),
+				BBLower:     screener.GetFloatFromInterface(values, "BB.lower"),
+				BBUpper:     screener.GetFloatFromInterface(values, "BB.upper"),
+				PivotR1:     pivotR1,
 			},
 		},
 		Timestamp: time.Now().UTC(),

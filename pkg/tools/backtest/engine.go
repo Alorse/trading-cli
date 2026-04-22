@@ -19,26 +19,26 @@ type Trade struct {
 
 // BacktestResult holds comprehensive backtest metrics and results.
 type BacktestResult struct {
-	Strategy        string    `json:"strategy"`
-	Symbol          string    `json:"symbol"`
-	Period          string    `json:"period"`
-	TotalTrades     int       `json:"totalTrades"`
-	WinningTrades   int       `json:"winningTrades"`
-	LosingTrades    int       `json:"losingTrades"`
-	WinRate         float64   `json:"winRate"`
-	FinalCapital    float64   `json:"finalCapital"`
-	TotalReturn     float64   `json:"totalReturn"`
-	AvgGain         float64   `json:"avgGain"`
-	AvgLoss         float64   `json:"avgLoss"`
-	MaxDrawdown     float64   `json:"maxDrawdown"`
-	ProfitFactor    float64   `json:"profitFactor"`
-	SharpeRatio     float64   `json:"sharpeRatio"`
-	CalmarRatio     float64   `json:"calmarRatio"`
-	Expectancy      float64   `json:"expectancy"`
-	BestTrade       float64   `json:"bestTrade"`
-	WorstTrade      float64   `json:"worstTrade"`
-	Trades          []Trade   `json:"trades,omitempty"`
-	EquityCurve     []float64 `json:"equityCurve,omitempty"`
+	Strategy      string    `json:"strategy"`
+	Symbol        string    `json:"symbol"`
+	Period        string    `json:"period"`
+	TotalTrades   int       `json:"totalTrades"`
+	WinningTrades int       `json:"winningTrades"`
+	LosingTrades  int       `json:"losingTrades"`
+	WinRate       float64   `json:"winRate"`
+	FinalCapital  float64   `json:"finalCapital"`
+	TotalReturn   float64   `json:"totalReturn"`
+	AvgGain       float64   `json:"avgGain"`
+	AvgLoss       float64   `json:"avgLoss"`
+	MaxDrawdown   float64   `json:"maxDrawdown"`
+	ProfitFactor  float64   `json:"profitFactor"`
+	SharpeRatio   float64   `json:"sharpeRatio"`
+	CalmarRatio   float64   `json:"calmarRatio"`
+	Expectancy    float64   `json:"expectancy"`
+	BestTrade     float64   `json:"bestTrade"`
+	WorstTrade    float64   `json:"worstTrade"`
+	Trades        []Trade   `json:"trades,omitempty"`
+	EquityCurve   []float64 `json:"equityCurve,omitempty"`
 }
 
 // Strategy interface that all strategies must implement.
@@ -201,7 +201,7 @@ func RunBacktest(symbol, strategyName string, candles []client.YahooOHLCV, strat
 		}
 
 		// Calculate Expectancy
-		result.Expectancy = (result.WinRate/100)*result.AvgGain - ((1-(result.WinRate/100))*utils.Abs(result.AvgLoss))
+		result.Expectancy = (result.WinRate/100)*result.AvgGain - ((1 - (result.WinRate / 100)) * utils.Abs(result.AvgLoss))
 	}
 
 	// Calculate Max Drawdown

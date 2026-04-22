@@ -26,13 +26,13 @@ type SmartVolumeEntry struct {
 
 // SmartVolumeResult is the complete smart volume scan result
 type SmartVolumeResult struct {
-	Exchange      string             `json:"exchange"`
+	Exchange       string             `json:"exchange"`
 	MinVolumeRatio float64            `json:"minVolumeRatio"`
 	MinPriceChange float64            `json:"minPriceChange"`
-	RSIRange      string             `json:"rsiRange"`
-	TotalScanned  int                `json:"totalScanned"`
-	TotalFound    int                `json:"totalFound"`
-	Data          []SmartVolumeEntry `json:"data"`
+	RSIRange       string             `json:"rsiRange"`
+	TotalScanned   int                `json:"totalScanned"`
+	TotalFound     int                `json:"totalFound"`
+	Data           []SmartVolumeEntry `json:"data"`
 }
 
 // shouldIncludeByRSI checks if RSI is within the specified range

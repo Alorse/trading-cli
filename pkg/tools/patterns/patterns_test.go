@@ -34,15 +34,15 @@ func TestComputeCandleBodyRatio(t *testing.T) {
 // TestScoreBullishCandle tests bullish candle scoring
 func TestScoreBullishCandle(t *testing.T) {
 	tests := []struct {
-		name         string
-		change       float64
-		bodyRatio    float64
-		close        float64
-		sma20        float64
-		rsi          float64
-		volume       float64
-		expectedMin  int
-		expectedMax  int
+		name        string
+		change      float64
+		bodyRatio   float64
+		close       float64
+		sma20       float64
+		rsi         float64
+		volume      float64
+		expectedMin int
+		expectedMax int
 	}{
 		{
 			"perfect_bullish",
@@ -69,15 +69,15 @@ func TestScoreBullishCandle(t *testing.T) {
 // TestScoreBearishCandle tests bearish candle scoring
 func TestScoreBearishCandle(t *testing.T) {
 	tests := []struct {
-		name         string
-		change       float64
-		bodyRatio    float64
-		close        float64
-		sma20        float64
-		rsi          float64
-		volume       float64
-		expectedMin  int
-		expectedMax  int
+		name        string
+		change      float64
+		bodyRatio   float64
+		close       float64
+		sma20       float64
+		rsi         float64
+		volume      float64
+		expectedMin int
+		expectedMax int
 	}{
 		{
 			"perfect_bearish",
@@ -104,15 +104,15 @@ func TestScoreBearishCandle(t *testing.T) {
 // TestScoreAdvancedCandle tests advanced candle scoring (0-7 scale)
 func TestScoreAdvancedCandle(t *testing.T) {
 	tests := []struct {
-		name         string
-		bodyRatio    float64
-		change       float64
-		volume       float64
-		rsi          float64
-		close        float64
-		ema50        float64
-		expectedMin  int
-		expectedMax  int
+		name        string
+		bodyRatio   float64
+		change      float64
+		volume      float64
+		rsi         float64
+		close       float64
+		ema50       float64
+		expectedMin int
+		expectedMax int
 	}{
 		{
 			"perfect_advanced",

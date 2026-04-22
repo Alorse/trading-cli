@@ -6,55 +6,55 @@ import (
 
 func TestRSI(t *testing.T) {
 	tests := []struct {
-		name           string
-		prices         []float64
-		period         int
-		minExpected    float64
-		maxExpected    float64
-		checkExactIdx  int // If >= 0, check exact value at this index
-		exactValue     float64
+		name          string
+		prices        []float64
+		period        int
+		minExpected   float64
+		maxExpected   float64
+		checkExactIdx int // If >= 0, check exact value at this index
+		exactValue    float64
 	}{
 		{
-			name:    "RSI(14) with 15 closes uptrend",
-			prices:  []float64{44.34, 44.09, 44.15, 43.61, 44.33, 44.83, 45.10, 45.42, 45.84, 46.08, 45.89, 46.03, 45.61, 46.28, 46.28},
-			period:  14,
-			minExpected: 50,  // Expect above 50 for uptrend
-			maxExpected: 100,
+			name:          "RSI(14) with 15 closes uptrend",
+			prices:        []float64{44.34, 44.09, 44.15, 43.61, 44.33, 44.83, 45.10, 45.42, 45.84, 46.08, 45.89, 46.03, 45.61, 46.28, 46.28},
+			period:        14,
+			minExpected:   50, // Expect above 50 for uptrend
+			maxExpected:   100,
 			checkExactIdx: 14,
-			exactValue: 70.464, // Strong uptrend
+			exactValue:    70.464, // Strong uptrend
 		},
 		{
-			name:    "RSI(2) simple",
-			prices:  []float64{10, 20, 30, 40},
-			period:  2,
-			minExpected: 0,
-			maxExpected: 100,
+			name:          "RSI(2) simple",
+			prices:        []float64{10, 20, 30, 40},
+			period:        2,
+			minExpected:   0,
+			maxExpected:   100,
 			checkExactIdx: -1,
 		},
 		{
-			name:    "RSI(5) with all gains",
-			prices:  []float64{1, 2, 3, 4, 5, 6},
-			period:  5,
-			minExpected: 0,
-			maxExpected: 100,
+			name:          "RSI(5) with all gains",
+			prices:        []float64{1, 2, 3, 4, 5, 6},
+			period:        5,
+			minExpected:   0,
+			maxExpected:   100,
 			checkExactIdx: 5,
-			exactValue: 100.0, // All gains, no losses
+			exactValue:    100.0, // All gains, no losses
 		},
 		{
-			name:    "RSI(5) with all losses",
-			prices:  []float64{6, 5, 4, 3, 2, 1},
-			period:  5,
-			minExpected: 0,
-			maxExpected: 100,
+			name:          "RSI(5) with all losses",
+			prices:        []float64{6, 5, 4, 3, 2, 1},
+			period:        5,
+			minExpected:   0,
+			maxExpected:   100,
 			checkExactIdx: 5,
-			exactValue: 0.0, // All losses, no gains
+			exactValue:    0.0, // All losses, no gains
 		},
 		{
-			name:    "RSI period larger than data",
-			prices:  []float64{1, 2, 3},
-			period:  5,
-			minExpected: 0,
-			maxExpected: 0,
+			name:          "RSI period larger than data",
+			prices:        []float64{1, 2, 3},
+			period:        5,
+			minExpected:   0,
+			maxExpected:   0,
 			checkExactIdx: -1,
 		},
 	}

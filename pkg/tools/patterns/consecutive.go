@@ -13,23 +13,23 @@ import (
 
 // ConsecutiveEntry represents a candle pattern entry
 type ConsecutiveEntry struct {
-	Symbol           string  `json:"symbol"`
-	Price            float64 `json:"price"`
-	CurrentChange    float64 `json:"currentChange"`
-	CandleBodyRatio  float64 `json:"candleBodyRatio"`
-	PatternStrength  int     `json:"patternStrength"`
-	Volume           float64 `json:"volume"`
-	BollingerRating  int     `json:"bollingerRating"`
-	RSI              float64 `json:"rsi"`
+	Symbol          string  `json:"symbol"`
+	Price           float64 `json:"price"`
+	CurrentChange   float64 `json:"currentChange"`
+	CandleBodyRatio float64 `json:"candleBodyRatio"`
+	PatternStrength int     `json:"patternStrength"`
+	Volume          float64 `json:"volume"`
+	BollingerRating int     `json:"bollingerRating"`
+	RSI             float64 `json:"rsi"`
 }
 
 // ConsecutiveResult represents the complete scan result
 type ConsecutiveResult struct {
-	Exchange    string               `json:"exchange"`
-	Timeframe   string               `json:"timeframe"`
-	PatternType string               `json:"patternType"`
-	TotalFound  int                  `json:"totalFound"`
-	Data        []ConsecutiveEntry   `json:"data"`
+	Exchange    string             `json:"exchange"`
+	Timeframe   string             `json:"timeframe"`
+	PatternType string             `json:"patternType"`
+	TotalFound  int                `json:"totalFound"`
+	Data        []ConsecutiveEntry `json:"data"`
 }
 
 // getFloatConsec safely extracts a float64 value

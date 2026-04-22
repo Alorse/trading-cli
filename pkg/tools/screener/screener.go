@@ -161,4 +161,3 @@ func buildEntry(data client.TVSymbolData) *ScreenerEntry {
 		Indicators:    indicators,
 	}
 }
-

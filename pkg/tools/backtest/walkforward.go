@@ -11,27 +11,27 @@ import (
 
 // WalkForwardFold represents a single fold in walk-forward analysis.
 type WalkForwardFold struct {
-	FoldIndex        int     `json:"foldIndex"`
-	TrainStart       int     `json:"trainStart"`
-	TrainEnd         int     `json:"trainEnd"`
-	TestStart        int     `json:"testStart"`
-	TestEnd          int     `json:"testEnd"`
-	TrainReturn      float64 `json:"trainReturn"`
-	TestReturn       float64 `json:"testReturn"`
-	Robustness       float64 `json:"robustness"`
+	FoldIndex   int     `json:"foldIndex"`
+	TrainStart  int     `json:"trainStart"`
+	TrainEnd    int     `json:"trainEnd"`
+	TestStart   int     `json:"testStart"`
+	TestEnd     int     `json:"testEnd"`
+	TrainReturn float64 `json:"trainReturn"`
+	TestReturn  float64 `json:"testReturn"`
+	Robustness  float64 `json:"robustness"`
 }
 
 // WalkForwardResult holds the complete walk-forward analysis.
 type WalkForwardResult struct {
-	Strategy      string           `json:"strategy"`
-	Symbol        string           `json:"symbol"`
-	Period        string           `json:"period"`
-	NSplits       int              `json:"nSplits"`
-	TrainRatio    float64          `json:"trainRatio"`
-	AverageTrain  float64          `json:"averageTrain"`
-	AverageTest   float64          `json:"averageTest"`
-	AvgRobustness float64          `json:"avgRobustness"`
-	Verdict       string           `json:"verdict"`
+	Strategy      string            `json:"strategy"`
+	Symbol        string            `json:"symbol"`
+	Period        string            `json:"period"`
+	NSplits       int               `json:"nSplits"`
+	TrainRatio    float64           `json:"trainRatio"`
+	AverageTrain  float64           `json:"averageTrain"`
+	AverageTest   float64           `json:"averageTest"`
+	AvgRobustness float64           `json:"avgRobustness"`
+	Verdict       string            `json:"verdict"`
 	Folds         []WalkForwardFold `json:"folds"`
 }
 
@@ -87,12 +87,12 @@ func RunWalkForwardBacktest(cfg *config.Config, symbol, strategy, period, interv
 	}
 
 	result := WalkForwardResult{
-		Strategy:      strategy,
-		Symbol:        symbol,
-		Period:        period,
-		NSplits:       nSplits,
-		TrainRatio:    trainRatio,
-		Folds:         make([]WalkForwardFold, 0),
+		Strategy:   strategy,
+		Symbol:     symbol,
+		Period:     period,
+		NSplits:    nSplits,
+		TrainRatio: trainRatio,
+		Folds:      make([]WalkForwardFold, 0),
 	}
 
 	var trainReturns, testReturns, robustnesses []float64
@@ -143,14 +143,14 @@ func RunWalkForwardBacktest(cfg *config.Config, symbol, strategy, period, interv
 
 		// Record fold
 		foldRecord := WalkForwardFold{
-			FoldIndex:  fold,
-			TrainStart: foldStart,
-			TrainEnd:   trainEnd,
-			TestStart:  trainEnd,
-			TestEnd:    foldEnd,
+			FoldIndex:   fold,
+			TrainStart:  foldStart,
+			TrainEnd:    trainEnd,
+			TestStart:   trainEnd,
+			TestEnd:     foldEnd,
 			TrainReturn: trainReturn,
-			TestReturn: testReturn,
-			Robustness: robustness,
+			TestReturn:  testReturn,
+			Robustness:  robustness,
 		}
 		result.Folds = append(result.Folds, foldRecord)
 	}

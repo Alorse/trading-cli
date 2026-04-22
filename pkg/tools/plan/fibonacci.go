@@ -12,20 +12,20 @@ import (
 
 // FibonacciRetracementOutput represents the complete Fibonacci analysis
 type FibonacciRetracementOutput struct {
-	Symbol              string                  `json:"symbol"`
-	Exchange            string                  `json:"exchange"`
-	Lookback            string                  `json:"lookback"`
-	Timeframe           string                  `json:"timeframe"`
-	Trend               string                  `json:"trend"`
-	SwingHigh           float64                 `json:"swingHigh"`
-	SwingLow            float64                 `json:"swingLow"`
-	CurrentPrice        float64                 `json:"currentPrice"`
-	RetracementLevels   []FibonacciLevel        `json:"retracementLevels"`
-	ExtensionLevels     []FibonacciLevel        `json:"extensionLevels"`
-	NearestLevel        FibonacciLevel          `json:"nearestLevel"`
-	GoldenPocket        GoldenPocket            `json:"goldenPocket"`
-	CurrentDepthPercent float64                 `json:"currentDepthPercent"`
-	Timestamp           time.Time               `json:"timestamp"`
+	Symbol              string           `json:"symbol"`
+	Exchange            string           `json:"exchange"`
+	Lookback            string           `json:"lookback"`
+	Timeframe           string           `json:"timeframe"`
+	Trend               string           `json:"trend"`
+	SwingHigh           float64          `json:"swingHigh"`
+	SwingLow            float64          `json:"swingLow"`
+	CurrentPrice        float64          `json:"currentPrice"`
+	RetracementLevels   []FibonacciLevel `json:"retracementLevels"`
+	ExtensionLevels     []FibonacciLevel `json:"extensionLevels"`
+	NearestLevel        FibonacciLevel   `json:"nearestLevel"`
+	GoldenPocket        GoldenPocket     `json:"goldenPocket"`
+	CurrentDepthPercent float64          `json:"currentDepthPercent"`
+	Timestamp           time.Time        `json:"timestamp"`
 }
 
 // FibonacciLevel represents a single Fibonacci level

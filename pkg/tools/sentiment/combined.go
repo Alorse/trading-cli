@@ -15,23 +15,23 @@ import (
 
 // ConfluenceResult holds the confluence analysis between different signals
 type ConfluenceResult struct {
-	TechBullish   bool   `json:"techBullish"`
-	SentBullish   bool   `json:"sentBullish"`
-	SignalsAgree  bool   `json:"signalsAgree"`
-	Confidence    string `json:"confidence"`
+	TechBullish    bool   `json:"techBullish"`
+	SentBullish    bool   `json:"sentBullish"`
+	SignalsAgree   bool   `json:"signalsAgree"`
+	Confidence     string `json:"confidence"`
 	Recommendation string `json:"recommendation"`
 }
 
 // CombinedAnalysisOutput represents the merged analysis output
 type CombinedAnalysisOutput struct {
-	Symbol       string                 `json:"symbol"`
-	Exchange     string                 `json:"exchange"`
-	Timeframe    string                 `json:"timeframe"`
-	Technical    json.RawMessage        `json:"technical"`
-	Sentiment    json.RawMessage        `json:"sentiment"`
-	News         json.RawMessage        `json:"news"`
-	Confluence   ConfluenceResult       `json:"confluence"`
-	Timestamp    time.Time              `json:"timestamp"`
+	Symbol     string           `json:"symbol"`
+	Exchange   string           `json:"exchange"`
+	Timeframe  string           `json:"timeframe"`
+	Technical  json.RawMessage  `json:"technical"`
+	Sentiment  json.RawMessage  `json:"sentiment"`
+	News       json.RawMessage  `json:"news"`
+	Confluence ConfluenceResult `json:"confluence"`
+	Timestamp  time.Time        `json:"timestamp"`
 }
 
 // RunCombinedAnalysis performs integrated analysis combining technical, sentiment, and news
@@ -76,14 +76,14 @@ func RunCombinedAnalysis(cfg *config.Config, symbol, exchange, timeframe, catego
 
 	// 5. Build output
 	output := CombinedAnalysisOutput{
-		Symbol:    symbol,
-		Exchange:  exchange,
-		Timeframe: timeframe,
-		Technical: technicalData,
-		Sentiment: sentimentData,
-		News:      newsData,
+		Symbol:     symbol,
+		Exchange:   exchange,
+		Timeframe:  timeframe,
+		Technical:  technicalData,
+		Sentiment:  sentimentData,
+		News:       newsData,
 		Confluence: confluence,
-		Timestamp: time.Now().UTC(),
+		Timestamp:  time.Now().UTC(),
 	}
 
 	return utils.PrintJSON(output)

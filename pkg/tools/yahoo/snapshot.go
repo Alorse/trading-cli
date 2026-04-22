@@ -12,16 +12,16 @@ import (
 
 // Quote represents a single price quote from Yahoo Finance
 type Quote struct {
-	Symbol        string    `json:"symbol"`
-	Price         float64   `json:"price"`
-	PreviousClose float64   `json:"previousClose"`
-	Change        float64   `json:"change"`
-	ChangePct     float64   `json:"changePct"`
-	Currency      string    `json:"currency"`
-	Exchange      string    `json:"exchange"`
-	MarketState   string    `json:"marketState"`
-	Week52High    float64   `json:"week52High"`
-	Week52Low     float64   `json:"week52Low"`
+	Symbol        string  `json:"symbol"`
+	Price         float64 `json:"price"`
+	PreviousClose float64 `json:"previousClose"`
+	Change        float64 `json:"change"`
+	ChangePct     float64 `json:"changePct"`
+	Currency      string  `json:"currency"`
+	Exchange      string  `json:"exchange"`
+	MarketState   string  `json:"marketState"`
+	Week52High    float64 `json:"week52High"`
+	Week52Low     float64 `json:"week52Low"`
 }
 
 // SnapshotOutput represents the JSON output for a market snapshot

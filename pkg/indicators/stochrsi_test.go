@@ -6,22 +6,22 @@ import (
 
 func TestStochRSI(t *testing.T) {
 	tests := []struct {
-		name     string
-		closes   []float64
-		rsiP     int
-		stochP   int
-		smoothK  int
-		smoothD  int
+		name      string
+		closes    []float64
+		rsiP      int
+		stochP    int
+		smoothK   int
+		smoothD   int
 		expectedK []float64
 		expectedD []float64
 	}{
 		{
-			name:     "StochRSI(2,3,2,2) basic oscillation",
-			closes:   []float64{10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11},
-			rsiP:     2,
-			stochP:   3,
-			smoothK:  2,
-			smoothD:  2,
+			name:      "StochRSI(2,3,2,2) basic oscillation",
+			closes:    []float64{10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11},
+			rsiP:      2,
+			stochP:    3,
+			smoothK:   2,
+			smoothD:   2,
 			expectedK: []float64{0, 0, 0, 0, 0, 41.66666666666667, 41.66666666666667, 47.72727272727273, 47.72727272727273, 49.41860465116279, 49.41860465116279, 49.853801169590646, 49.853801169590646, 49.96339677891655},
 			expectedD: []float64{0, 0, 0, 0, 0, 0, 41.66666666666667, 44.6969696969697, 47.72727272727273, 48.57293868921776, 49.41860465116279, 49.63620291037672, 49.853801169590646, 49.90859897425359},
 		},
@@ -46,12 +46,12 @@ func TestStochRSI(t *testing.T) {
 			expectedD: []float64{0, 0, 0},
 		},
 		{
-			name:     "flat market returns 50 for raw StochRSI",
-			closes:   []float64{10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
-			rsiP:     2,
-			stochP:   3,
-			smoothK:  2,
-			smoothD:  2,
+			name:      "flat market returns 50 for raw StochRSI",
+			closes:    []float64{10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
+			rsiP:      2,
+			stochP:    3,
+			smoothK:   2,
+			smoothD:   2,
 			expectedK: []float64{0, 0, 0, 0, 0, 50, 50, 50, 50, 50},
 			expectedD: []float64{0, 0, 0, 0, 0, 0, 50, 50, 50, 50},
 		},

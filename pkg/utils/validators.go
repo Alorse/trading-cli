@@ -25,10 +25,10 @@ var validIntervals = map[string]bool{
 
 // Pre-computed error strings to avoid rebuilding on every validation failure.
 var (
-	validTimeframesStr  string
-	validPeriodsStr     string
-	validStrategiesStr  string
-	validIntervalsStr   string
+	validTimeframesStr string
+	validPeriodsStr    string
+	validStrategiesStr string
+	validIntervalsStr  string
 )
 
 func init() {

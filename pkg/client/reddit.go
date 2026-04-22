@@ -10,14 +10,14 @@ import (
 const redditBase = "https://www.reddit.com"
 
 type RedditPost struct {
-	Title     string  `json:"title"`
-	Subreddit string  `json:"subreddit"`
-	Score     int     `json:"score"`
-	NumComments int   `json:"num_comments"`
-	URL       string  `json:"url"`
-	Permalink string  `json:"permalink"`
-	CreatedUTC float64 `json:"created_utc"`
-	Selftext  string  `json:"selftext"`
+	Title       string  `json:"title"`
+	Subreddit   string  `json:"subreddit"`
+	Score       int     `json:"score"`
+	NumComments int     `json:"num_comments"`
+	URL         string  `json:"url"`
+	Permalink   string  `json:"permalink"`
+	CreatedUTC  float64 `json:"created_utc"`
+	Selftext    string  `json:"selftext"`
 }
 
 type RedditClient struct {

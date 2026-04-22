@@ -21,26 +21,26 @@ type RedditPostScore struct {
 
 // RedditTopPost represents a top post for JSON output
 type RedditTopPost struct {
-	Title        string  `json:"title"`
-	Subreddit    string  `json:"subreddit"`
-	Score        int     `json:"score"`
-	NumComments  int     `json:"numComments"`
-	URL          string  `json:"url"`
+	Title          string  `json:"title"`
+	Subreddit      string  `json:"subreddit"`
+	Score          int     `json:"score"`
+	NumComments    int     `json:"numComments"`
+	URL            string  `json:"url"`
 	SentimentScore float64 `json:"sentimentScore"`
 }
 
 // SentimentOutput represents the JSON output for market sentiment analysis
 type SentimentOutput struct {
-	Symbol          string          `json:"symbol"`
-	SentimentScore  float64         `json:"sentimentScore"`
-	SentimentLabel  string          `json:"sentimentLabel"`
-	PostsAnalyzed   int             `json:"postsAnalyzed"`
-	BullishCount    int             `json:"bullishCount"`
-	BearishCount    int             `json:"bearishCount"`
-	NeutralCount    int             `json:"neutralCount"`
-	TopPosts        []RedditTopPost `json:"topPosts"`
-	Sources         []string        `json:"sources"`
-	Timestamp       time.Time       `json:"timestamp"`
+	Symbol         string          `json:"symbol"`
+	SentimentScore float64         `json:"sentimentScore"`
+	SentimentLabel string          `json:"sentimentLabel"`
+	PostsAnalyzed  int             `json:"postsAnalyzed"`
+	BullishCount   int             `json:"bullishCount"`
+	BearishCount   int             `json:"bearishCount"`
+	NeutralCount   int             `json:"neutralCount"`
+	TopPosts       []RedditTopPost `json:"topPosts"`
+	Sources        []string        `json:"sources"`
+	Timestamp      time.Time       `json:"timestamp"`
 }
 
 // RunMarketSentiment analyzes market sentiment from Reddit
@@ -141,12 +141,12 @@ func RunMarketSentiment(cfg *config.Config, symbol string, category string, limi
 	for i := 0; i < len(scoredPosts) && i < 5; i++ {
 		sp := scoredPosts[i]
 		topPosts = append(topPosts, RedditTopPost{
-			Title:           sp.Post.Title,
-			Subreddit:       sp.Post.Subreddit,
-			Score:           sp.Post.Score,
-			NumComments:     sp.Post.NumComments,
-			URL:             sp.Post.URL,
-			SentimentScore:  sp.Score,
+			Title:          sp.Post.Title,
+			Subreddit:      sp.Post.Subreddit,
+			Score:          sp.Post.Score,
+			NumComments:    sp.Post.NumComments,
+			URL:            sp.Post.URL,
+			SentimentScore: sp.Score,
 		})
 	}
 

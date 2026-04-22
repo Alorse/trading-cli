@@ -12,9 +12,9 @@ import (
 
 // ComparisonResult holds the comparison of all strategies.
 type ComparisonResult struct {
-	Symbol  string          `json:"symbol"`
-	Period  string          `json:"period"`
-	Winner  string          `json:"winner"`
+	Symbol  string           `json:"symbol"`
+	Period  string           `json:"period"`
+	Winner  string           `json:"winner"`
 	Ranking []BacktestResult `json:"ranking"`
 }
 

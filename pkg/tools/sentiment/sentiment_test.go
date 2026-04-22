@@ -85,12 +85,12 @@ func TestHTMLStripping(t *testing.T) {
 
 func TestSentimentScoring(t *testing.T) {
 	testCases := []struct {
-		name                string
-		title               string
-		text                string
-		expectedBullCount   int
-		expectedBearCount   int
-		expectedScore       float64
+		name              string
+		title             string
+		text              string
+		expectedBullCount int
+		expectedBearCount int
+		expectedScore     float64
 	}{
 		{
 			name:              "All bull keywords",

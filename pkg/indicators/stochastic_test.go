@@ -6,13 +6,13 @@ import (
 
 func TestStochastic(t *testing.T) {
 	tests := []struct {
-		name        string
-		highs       []float64
-		lows        []float64
-		closes      []float64
-		period      int
-		expectedK   []float64
-		expectedD   []float64
+		name      string
+		highs     []float64
+		lows      []float64
+		closes    []float64
+		period    int
+		expectedK []float64
+		expectedD []float64
 	}{
 		{
 			name:      "Stochastic(3) basic",

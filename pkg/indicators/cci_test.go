@@ -84,11 +84,11 @@ func TestCCI(t *testing.T) {
 			},
 		},
 		{
-			name:     "empty input",
-			highs:    []float64{},
-			lows:     []float64{},
-			closes:   []float64{},
-			period:   14,
+			name:   "empty input",
+			highs:  []float64{},
+			lows:   []float64{},
+			closes: []float64{},
+			period: 14,
 			validate: func(t *testing.T, result []float64) {
 				if len(result) != 0 {
 					t.Fatalf("expected empty result, got %d", len(result))
@@ -96,11 +96,11 @@ func TestCCI(t *testing.T) {
 			},
 		},
 		{
-			name:     "period <= 0",
-			highs:    []float64{10, 11, 12},
-			lows:     []float64{8, 9, 10},
-			closes:   []float64{9, 10, 11},
-			period:   0,
+			name:   "period <= 0",
+			highs:  []float64{10, 11, 12},
+			lows:   []float64{8, 9, 10},
+			closes: []float64{9, 10, 11},
+			period: 0,
 			validate: func(t *testing.T, result []float64) {
 				if len(result) != 0 {
 					t.Fatalf("expected empty result, got %d", len(result))

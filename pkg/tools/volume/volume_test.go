@@ -7,10 +7,10 @@ import (
 // TestComputeVolumeRatio tests volume ratio calculation
 func TestComputeVolumeRatio(t *testing.T) {
 	tests := []struct {
-		name        string
-		current     float64
-		avg20       float64
-		expected    float64
+		name     string
+		current  float64
+		avg20    float64
+		expected float64
 	}{
 		{"double_volume", 2000.0, 1000.0, 2.0},
 		{"triple_volume", 3000.0, 1000.0, 3.0},
@@ -103,15 +103,15 @@ func TestComputeVolumeAssessment(t *testing.T) {
 // TestGenerateSignals tests signal generation
 func TestGenerateSignals(t *testing.T) {
 	tests := []struct {
-		name          string
-		change        float64
-		ratio         float64
-		close         float64
-		bbUpper       float64
-		bbLower       float64
-		expectedMin   int
-		expectedMax   int
-		shouldHave    string
+		name        string
+		change      float64
+		ratio       float64
+		close       float64
+		bbUpper     float64
+		bbLower     float64
+		expectedMin int
+		expectedMax int
+		shouldHave  string
 	}{
 		{
 			"strong_breakout",

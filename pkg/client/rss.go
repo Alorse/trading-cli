@@ -17,9 +17,9 @@ type RSSItem struct {
 }
 
 var NewsFeeds = map[string]string{
-	"coindesk":    "https://www.coindesk.com/arc/outboundfeeds/rss/",
-	"cointelegraph": "https://cointelegraph.com/rss",
-	"reuters-business": "https://feeds.reuters.com/reuters/businessNews",
+	"coindesk":          "https://www.coindesk.com/arc/outboundfeeds/rss/",
+	"cointelegraph":     "https://cointelegraph.com/rss",
+	"reuters-business":  "https://feeds.reuters.com/reuters/businessNews",
 	"reuters-companies": "https://feeds.reuters.com/reuters/companyNews",
 }
 

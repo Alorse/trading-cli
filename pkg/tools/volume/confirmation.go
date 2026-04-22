@@ -13,20 +13,20 @@ import (
 
 // VolumeConfirmationOutput represents volume confirmation analysis
 type VolumeConfirmationOutput struct {
-	Symbol       string                 `json:"symbol"`
-	Timeframe    string                 `json:"timeframe"`
-	Price        VolumePrice            `json:"price"`
-	Volume       VolumeAnalysis         `json:"volume"`
-	Signals      []string               `json:"signals"`
-	Assessment   string                 `json:"assessment"`
-	Timestamp    string                 `json:"timestamp"`
+	Symbol     string         `json:"symbol"`
+	Timeframe  string         `json:"timeframe"`
+	Price      VolumePrice    `json:"price"`
+	Volume     VolumeAnalysis `json:"volume"`
+	Signals    []string       `json:"signals"`
+	Assessment string         `json:"assessment"`
+	Timestamp  string         `json:"timestamp"`
 }
 
 type VolumePrice struct {
-	Close          float64 `json:"close"`
-	ChangePercent  float64 `json:"changePercent"`
-	Range          float64 `json:"range"`
-	BodyRatio      float64 `json:"bodyRatio"`
+	Close         float64 `json:"close"`
+	ChangePercent float64 `json:"changePercent"`
+	Range         float64 `json:"range"`
+	BodyRatio     float64 `json:"bodyRatio"`
 }
 
 type VolumeAnalysis struct {

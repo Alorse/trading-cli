@@ -13,24 +13,24 @@ import (
 
 // VolumeBreakoutEntry represents a single volume breakout entry
 type VolumeBreakoutEntry struct {
-	Symbol          string             `json:"symbol"`
-	ChangePercent   float64            `json:"changePercent"`
-	VolumeRatio     float64            `json:"volumeRatio"`
-	VolumeStrength  float64            `json:"volumeStrength"`
-	CurrentVolume   float64            `json:"currentVolume"`
-	BreakoutType    string             `json:"breakoutType"`
-	Indicators      map[string]float64 `json:"indicators"`
+	Symbol         string             `json:"symbol"`
+	ChangePercent  float64            `json:"changePercent"`
+	VolumeRatio    float64            `json:"volumeRatio"`
+	VolumeStrength float64            `json:"volumeStrength"`
+	CurrentVolume  float64            `json:"currentVolume"`
+	BreakoutType   string             `json:"breakoutType"`
+	Indicators     map[string]float64 `json:"indicators"`
 }
 
 // VolumeBreakoutResult is the complete breakout scan result
 type VolumeBreakoutResult struct {
-	Exchange        string                 `json:"exchange"`
-	Timeframe       string                 `json:"timeframe"`
+	Exchange         string                `json:"exchange"`
+	Timeframe        string                `json:"timeframe"`
 	VolumeMultiplier float64               `json:"volumeMultiplier"`
-	PriceChangeMin  float64                `json:"priceChangeMin"`
-	TotalScanned    int                    `json:"totalScanned"`
-	TotalFound      int                    `json:"totalFound"`
-	Data            []VolumeBreakoutEntry  `json:"data"`
+	PriceChangeMin   float64               `json:"priceChangeMin"`
+	TotalScanned     int                   `json:"totalScanned"`
+	TotalFound       int                   `json:"totalFound"`
+	Data             []VolumeBreakoutEntry `json:"data"`
 }
 
 // getFloat safely extracts a float64 value
@@ -155,9 +155,9 @@ func RunVolumeBreakout(cfg *config.Config, exchange, timeframe string, volumeMul
 			CurrentVolume:  volume,
 			BreakoutType:   bType,
 			Indicators: map[string]float64{
-				"RSI":     getFloat(result.Values, "RSI"),
-				"ADX":     getFloat(result.Values, "ADX"),
-				"ATR":     getFloat(result.Values, "ATR"),
+				"RSI": getFloat(result.Values, "RSI"),
+				"ADX": getFloat(result.Values, "ADX"),
+				"ATR": getFloat(result.Values, "ATR"),
 			},
 		}
 
