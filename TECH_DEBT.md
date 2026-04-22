@@ -91,7 +91,7 @@ The REQUIREMENT specifies 23+ indicator groups. Current implementation extracts 
 
 **Dependencies:** Blocked until all P0 indicators are implemented.
 
-**Status:** PENDING (Batch 6 — integration pass)
+**Status:** **DONE** (Batch 6 — wired CCI, Williams %R, AO, Momentum, Parabolic SAR, Ichimoku, Hull MA, Stochastic RSI, Ultimate Oscillator, VWAP, VWMA into output. OBV remains unavailable from TV scanner.)
 
 ### 4. `multi-timeframe-analysis` — Oversimplified Logic
 
@@ -103,7 +103,7 @@ The REQUIREMENT specifies 23+ indicator groups. Current implementation extracts 
 | 1h | EMA20 dynamic S/R, volume spikes, VWAP | `close > VWAP && change > 0` only |
 | 15m | EMA9/20 fast crossover, VWAP institutional | `EMA9 > EMA20 && change > 0` only |
 
-**Status:** PENDING (post-P0)
+**Status:** **DONE** (Batch 6 — expanded to full scoring logic per spec)
 
 ### 5. `rating-filter` — Wrong Default Timeframe
 
