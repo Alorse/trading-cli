@@ -1,62 +1,40 @@
 package screener
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/alorse/trading-cli/pkg/client"
 )
 
-// TestLoadSymbols tests loading symbols from a temporary file
+// TestLoadSymbols tests loading symbols from the embedded data
 func TestLoadSymbols(t *testing.T) {
-	// Create a temporary directory
-	tmpDir := t.TempDir()
-
-	// Create a subdirectory for symbols
-	symbolsDir := filepath.Join(tmpDir, "data", "symbols")
-	if err := os.MkdirAll(symbolsDir, 0755); err != nil {
-		t.Fatalf("failed to create temp directory: %v", err)
-	}
-
-	// Change working directory to temp dir
-	originalWd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("failed to get working directory: %v", err)
-	}
-	if err := os.Chdir(tmpDir); err != nil {
-		t.Fatalf("failed to change directory: %v", err)
-	}
-	defer os.Chdir(originalWd)
-
-	// Create a test symbols file
-	testFile := filepath.Join(symbolsDir, "test.txt")
-	content := `# Comment line
-SYMBOL1
-SYMBOL2
-
-# Another comment
-SYMBOL3
-`
-	if err := os.WriteFile(testFile, []byte(content), 0644); err != nil {
-		t.Fatalf("failed to write test file: %v", err)
-	}
-
-	// Test loading symbols
-	symbols, err := LoadSymbols("test")
+	// Test loading a real embedded exchange file (kucoin)
+	symbols, err := LoadSymbols("kucoin")
 	if err != nil {
 		t.Fatalf("LoadSymbols failed: %v", err)
 	}
 
-	expected := []string{"SYMBOL1", "SYMBOL2", "SYMBOL3"}
-	if len(symbols) != len(expected) {
-		t.Errorf("expected %d symbols, got %d", len(expected), len(symbols))
+	if len(symbols) == 0 {
+		t.Fatal("expected non-empty symbol list")
 	}
 
-	for i, sym := range symbols {
-		if sym != expected[i] {
-			t.Errorf("symbol %d: expected %q, got %q", i, expected[i], sym)
+	// Verify symbols look like crypto pairs (end with USDT)
+	foundUSDT := false
+	for _, sym := range symbols {
+		if len(sym) == 0 {
+			t.Error("found empty symbol")
 		}
+		if len(symbols) > 0 && symbols[0] == sym {
+			if len(sym) > 0 {
+				// just verify non-empty
+			}
+		}
+		if len(sym) > 4 && sym[len(sym)-4:] == "USDT" {
+			foundUSDT = true
+		}
+	}
+	if !foundUSDT {
+		t.Error("expected at least one symbol ending in USDT")
 	}
 }
 

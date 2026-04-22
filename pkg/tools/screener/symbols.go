@@ -2,28 +2,28 @@ package screener
 
 import (
 	"bufio"
+	"bytes"
+	"embed"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 )
 
-// LoadSymbols reads symbol data from data/symbols/{exchange}.txt
+//go:embed data/*.txt
+var symbolsFS embed.FS
+
+// LoadSymbols reads symbol data from the embedded data/symbols/{exchange}.txt
 // Returns a slice of symbol strings, skipping blank lines and comments (lines starting with #)
 // Returns an error if the file is not found
 func LoadSymbols(exchange string) ([]string, error) {
-	// Construct path to symbols file relative to current working directory
 	filename := strings.ToLower(exchange) + ".txt"
-	filepath := filepath.Join("data", "symbols", filename)
 
-	file, err := os.Open(filepath)
+	data, err := symbolsFS.ReadFile("data/" + filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open symbols file for %s: %w", exchange, err)
 	}
-	defer file.Close()
 
 	var symbols []string
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(bytes.NewReader(data))
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
