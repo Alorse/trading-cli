@@ -28,9 +28,9 @@ Currently implemented (8/23+):
 | 1 | Stochastic (%K, %D) | **DONE** | Batch 1 |
 | 2 | ADX (+DI, -DI) | **DONE** | Batch 1 |
 | 3 | OBV (On-Balance Volume) | **DONE** | Batch 1 |
-| 4 | CCI (Commodity Channel Index) | PENDING | Batch 2 |
-| 5 | Williams %R | PENDING | Batch 2 |
-| 6 | Awesome Oscillator | PENDING | Batch 2 |
+| 4 | CCI (Commodity Channel Index) | **DONE** | Batch 2 |
+| 5 | Williams %R | **DONE** | Batch 2 |
+| 6 | Awesome Oscillator | **DONE** | Batch 2 |
 | 7 | Momentum | PENDING | Batch 3 |
 | 8 | Parabolic SAR | PENDING | Batch 3 |
 | 9 | Ichimoku Cloud | PENDING | Batch 3 |
