@@ -133,7 +133,7 @@ trading-cli rating-filter --exchange BINANCE --timeframe 4h --rating 2
 
 ### coin-analysis
 
-Full technical analysis for a single symbol. Returns 34+ indicator groups including RSI, MACD, Bollinger Bands, SMA/EMA, ATR, ADX, Stochastic, CCI, Williams %R, Awesome Oscillator, Momentum, Parabolic SAR, Ichimoku Cloud, Hull MA, Stochastic RSI, Ultimate Oscillator, VWAP, VWMA, market structure, and pivot levels.
+Full technical analysis for a single symbol. Returns **23 indicator groups** sourced from the TradingView scanner API, with locally computed derived fields (signals, positions, trend scores).
 
 ```bash
 trading-cli coin-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 4h
@@ -147,43 +147,44 @@ trading-cli coin-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 4h
 | `--exchange` | `KUCOIN` | Exchange name |
 | `--timeframe` | `15m` | Candle timeframe |
 
-**Key output fields:**
-- `rsi` — Value, signal (oversold/neutral/overbought), previous value
-- `macd` — Line, signal, histogram
-- `sma` — 10, 20, 50, 100, 200 periods
-- `ema` — 9, 20, 50, 100, 200 periods
-- `bollingerBands` — Upper, middle, lower, width, position
-- `atr` — Average True Range
-- `adx` — Trend strength
-- `stochastic` — %K and %D
-- `cci` — Value, signal (overbought/oversold/neutral)
-- `williamsR` — Value
-- `awesomeOscillator` — Value
-- `momentum` — Value
-- `parabolicSAR` — Value
-- `ichimoku` — Base line
-- `hullMA` — Value
-- `stochasticRSI` — K value
-- `ultimateOscillator` — Value
-- `vwap` — Value
-- `vwma` — Value
-- `recommendation` — TradingView aggregate (all, MA, other)
-- `marketStructure` — Trend, trend score, momentum alignment
+**Indicator groups:**
+
+| Group | Fields | Source | Notes |
+|-------|--------|--------|-------|
+| Price | open, high, low, close, change%, volume | TradingView | |
+| RSI | value, signal, previous | TradingView + calculated | signal computed locally |
+| MACD | line, signal, histogram | TradingView + calculated | histogram computed locally; crossover field not present |
+| SMA | 10, 20, 50, 100, 200 | TradingView | SMA30 fetched but not output; no cross detection |
+| EMA | 9, 20, 50, 100, 200 | TradingView | EMA10/30 not fetched; no cross detection |
+| Bollinger Bands | upper, middle, lower, width, position | TradingView + calculated | width and position computed locally; squeeze not implemented |
+| ATR | value | TradingView | % of price and volatility label not implemented |
+| ADX | value | TradingView | +DI/-DI not implemented |
+| Volume | current, ratio | TradingView + calculated | avg20 hardcoded to 0; no signal field |
+| Stochastic | %K, %D | TradingView | |
+| CCI | value, signal | TradingView + calculated | signal computed locally |
+| Williams %R | value | TradingView | |
+| Awesome Oscillator | value | TradingView | |
+| Momentum | value | TradingView | |
+| Parabolic SAR | value | TradingView | |
+| Ichimoku | baseLine | TradingView | full cloud not implemented |
+| Hull MA | value | TradingView | |
+| Stochastic RSI | K | TradingView | D value not implemented |
+| Ultimate Oscillator | value | TradingView | |
+| VWAP | value | TradingView | |
+| VWMA | value | TradingView | |
+| Recommendations | all, MA, other | TradingView | |
+| Market Structure | trend, trendScore, momentumAlignment | Calculated locally | candle analysis not implemented |
+
+**Not implemented:** OBV, support/resistance pivot levels (fetched but not output), stock score, trade setup, and trade quality (listed in requirements for stock exchanges only).
 
 ---
 
 ### multi-timeframe-analysis
 
-Analyzes 5 timeframes (1W, 1D, 4h, 1h, 15m) simultaneously to detect trend alignment and divergences. Each timeframe evaluates specific signals:
-
-- **1W**: EMA100/200 trend direction + MACD momentum + RSI
-- **1D**: Golden/death cross + RSI zone + volume ratio + MACD
-- **4h**: EMA20/50 alignment + MACD crossover
-- **1h**: EMA20 support/resistance + volume spikes + VWAP
-- **15m**: EMA9/20 alignment + VWAP
+Analyzes 5 fixed timeframes (1W, 1D, 4h, 1h, 15m) simultaneously to detect trend alignment and divergences. The command uses the same scanner data for all timeframes (TradingView scanner does not differentiate by timeframe).
 
 ```bash
-trading-cli multi-timeframe-analysis --symbol ETHUSDT --exchange BINANCE --timeframe 4h
+trading-cli multi-timeframe-analysis --symbol ETHUSDT --exchange BINANCE
 ```
 
 **Flags:**
@@ -192,7 +193,16 @@ trading-cli multi-timeframe-analysis --symbol ETHUSDT --exchange BINANCE --timef
 |------|---------|-------------|
 | `--symbol` | (required) | Symbol |
 | `--exchange` | `KUCOIN` | Exchange name |
-| `--timeframe` | `15m` | Reference timeframe |
+
+**Per-timeframe evaluation:**
+
+| Timeframe | Signals Evaluated | Bias Logic |
+|-----------|-------------------|------------|
+| **1W** | EMA100/200 trend, MACD momentum, RSI | Bullish: 2+ of EMA100>EMA200, MACD line>signal, RSI>50 |
+| **1D** | Golden/death cross, RSI zone, volume ratio, MACD | Bullish: score >= 2 from close>EMA50>EMA200, RSI>60, relVolume>1.0, MACD bullish |
+| **4h** | EMA20/50 alignment, MACD crossover | Bullish: EMA20>EMA50 and MACD line>signal |
+| **1h** | EMA20 support/resistance, volume spikes, VWAP | Bullish: 2+ of close>EMA20, relVolume>1.5, close>VWAP |
+| **15m** | EMA9/20 alignment, VWAP | Bullish: EMA9>EMA20 and close>VWAP |
 
 **Key output fields:**
 - `overallSignal` — LEAN BULLISH / LEAN BEARISH / NEUTRAL
