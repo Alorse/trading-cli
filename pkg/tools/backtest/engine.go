@@ -100,7 +100,7 @@ func RunBacktest(symbol, strategyName string, candles []client.YahooOHLCV, strat
 
 			// Calculate return with transaction costs
 			returnBeforeCost := (exitPrice - entryPrice) / entryPrice
-			transactionCost := costPerTrade / 100
+			transactionCost := costPerTrade
 			returnAfterCost := returnBeforeCost - transactionCost
 
 			returnPct := returnAfterCost * 100
