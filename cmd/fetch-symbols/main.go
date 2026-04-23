@@ -16,7 +16,11 @@ const (
 	pageSize   = 500
 )
 
-var exchanges = []string{"BINGX", "PHEMEX", "KRAKEN"}
+var exchanges = []string{
+	"KUCOIN", "BINANCE", "BYBIT", "OKX", "BITGET",
+	"COINBASE", "GATE", "MEXC", "HTX", "BITFINEX",
+	"BINGX", "PHEMEX", "KRAKEN",
+}
 
 type scanRequest struct {
 	Filter  []scanFilter     `json:"filter"`
