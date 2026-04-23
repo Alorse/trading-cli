@@ -53,7 +53,7 @@ func RunBollingerScan(cfg *config.Config, exchange, timeframe string, bbwThresho
 	}
 
 	// Apply timeframe suffix to columns
-	columns = applyTimeframe(columns, timeframe)
+	columns = ApplyTimeframe(columns, timeframe)
 
 	// Fetch up to limit*2 symbols (capped at total symbols)
 	fetchCount := limit * 2
@@ -73,7 +73,7 @@ func RunBollingerScan(cfg *config.Config, exchange, timeframe string, bbwThresho
 	}
 
 	// Normalize result keys back to unsuffixed names
-	results = normalizeResults(results, timeframe)
+	results = NormalizeResults(results, timeframe)
 
 	// Build entries and filter
 	entries := make([]*ScreenerEntry, 0)

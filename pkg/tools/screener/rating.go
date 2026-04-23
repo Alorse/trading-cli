@@ -53,7 +53,7 @@ func RunRatingFilter(cfg *config.Config, exchange, timeframe string, rating, lim
 	}
 
 	// Apply timeframe suffix to columns
-	columns = applyTimeframe(columns, timeframe)
+	columns = ApplyTimeframe(columns, timeframe)
 
 	// Set up context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -66,7 +66,7 @@ func RunRatingFilter(cfg *config.Config, exchange, timeframe string, rating, lim
 	}
 
 	// Normalize result keys back to unsuffixed names
-	results = normalizeResults(results, timeframe)
+	results = NormalizeResults(results, timeframe)
 
 	// Build entries and filter
 	entries := make([]*ScreenerEntry, 0)

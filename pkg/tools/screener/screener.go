@@ -18,9 +18,9 @@ var timeframeSuffix = map[string]string{
 	"1M":  "|1M",
 }
 
-// applyTimeframe appends the TradingView timeframe suffix to each column.
+// ApplyTimeframe appends the TradingView timeframe suffix to each column.
 // For the default timeframe (1D) columns are returned unchanged.
-func applyTimeframe(columns []string, timeframe string) []string {
+func ApplyTimeframe(columns []string, timeframe string) []string {
 	suffix := timeframeSuffix[timeframe]
 	if suffix == "" {
 		return columns
@@ -32,9 +32,9 @@ func applyTimeframe(columns []string, timeframe string) []string {
 	return out
 }
 
-// normalizeResults strips timeframe suffixes from column names in the response
+// NormalizeResults strips timeframe suffixes from column names in the response
 // so downstream code can read values using the original unsuffixed keys.
-func normalizeResults(results []client.TVSymbolData, timeframe string) []client.TVSymbolData {
+func NormalizeResults(results []client.TVSymbolData, timeframe string) []client.TVSymbolData {
 	suffix := timeframeSuffix[timeframe]
 	if suffix == "" {
 		return results

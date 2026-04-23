@@ -266,7 +266,10 @@ func RunTradePlan(cfg *config.Config, symbol, exchange, timeframe string) error 
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.HTTPTimeout)
 	defer cancel()
 
-	results, err := tvClient.GetMultipleAnalysis(ctx, screenName, []string{ticker}, client.DefaultColumns)
+	// Apply timeframe suffix to columns for the TradingView API
+	columns := screener.ApplyTimeframe(client.DefaultColumns, timeframe)
+
+	results, err := tvClient.GetMultipleAnalysis(ctx, screenName, []string{ticker}, columns)
 	if err != nil {
 		return fmt.Errorf("fetch analysis: %w", err)
 	}
@@ -274,6 +277,9 @@ func RunTradePlan(cfg *config.Config, symbol, exchange, timeframe string) error 
 	if len(results) == 0 {
 		return fmt.Errorf("no data returned for symbol %s", ticker)
 	}
+
+	// Normalize result keys back to unsuffixed names
+	results = screener.NormalizeResults(results, timeframe)
 
 	values := results[0].Values
 	close := screener.GetFloatFromInterface(values, "close")
