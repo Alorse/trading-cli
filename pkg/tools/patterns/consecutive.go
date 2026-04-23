@@ -52,7 +52,7 @@ func getFloatConsec(values map[string]interface{}, key string) float64 {
 }
 
 // RunConsecutiveCandles scans for consecutive candle patterns
-func RunConsecutiveCandles(cfg *config.Config, exchange, timeframe, patternType string, minGrowth float64, limit int) error {
+func RunConsecutiveCandles(cfg *config.Config, exchange, timeframe, patternType string, minGrowth float64, limit int, futures bool) error {
 	// Validate inputs
 	if exchange == "" {
 		return fmt.Errorf("exchange cannot be empty")
@@ -65,7 +65,7 @@ func RunConsecutiveCandles(cfg *config.Config, exchange, timeframe, patternType 
 	}
 
 	// Load symbols
-	symbols, err := screener.LoadSymbols(exchange)
+	symbols, err := screener.LoadSymbols(exchange, futures)
 	if err != nil {
 		return fmt.Errorf("load symbols: %w", err)
 	}

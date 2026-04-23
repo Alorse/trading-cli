@@ -12,7 +12,7 @@ import (
 )
 
 // RunTopLosers retrieves and displays the top losing symbols for a given exchange and timeframe
-func RunTopLosers(cfg *config.Config, exchange, timeframe string, limit int) error {
+func RunTopLosers(cfg *config.Config, exchange, timeframe string, limit int, futures bool) error {
 	// Validate inputs
 	if err := utils.ValidateTimeframe(timeframe); err != nil {
 		return err
@@ -23,7 +23,7 @@ func RunTopLosers(cfg *config.Config, exchange, timeframe string, limit int) err
 	}
 
 	// Load symbols
-	symbols, err := LoadSymbols(exchange)
+	symbols, err := LoadSymbols(exchange, futures)
 	if err != nil {
 		return fmt.Errorf("failed to load symbols: %w", err)
 	}

@@ -46,8 +46,14 @@ Download pre-built binaries for your platform from the [releases page](https://g
 # Top gainers on KuCoin
 trading-cli top-gainers --exchange KUCOIN --timeframe 15m --limit 10
 
+# Top gainers on Binance Futures
+trading-cli top-gainers --exchange BINANCE --timeframe 15m --limit 10 --futures
+
 # Full analysis of Bitcoin
 trading-cli coin-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 1h
+
+# Analysis of a perpetual futures symbol
+trading-cli coin-analysis --symbol BTCUSDT.P --exchange BINANCE --timeframe 1h
 
 # Backtest RSI strategy on Apple
 trading-cli backtest-strategy --symbol AAPL --strategy rsi --period 1y

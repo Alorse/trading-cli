@@ -47,6 +47,54 @@ Complete reference for all 25 commands in trading-cli. All commands output struc
 
 ---
 
+## Futures / Perpetual Support
+
+All screening and scanning commands support an optional `--futures` flag to switch from spot markets to futures/perpetual markets. When enabled, the tool loads symbols from the embedded `{exchange}_futures.txt` lists (populated via `fetch-symbols --futures`).
+
+### Commands supporting `--futures`
+
+- `top-gainers`
+- `top-losers`
+- `bollinger-scan`
+- `rating-filter`
+- `consecutive-candles-scan`
+- `advanced-candle-pattern`
+- `volume-breakout-scanner`
+- `smart-volume-scanner`
+
+### Examples
+
+```bash
+# Top gainers on Binance Futures
+trading-cli top-gainers --exchange BINANCE --timeframe 1D --limit 10 --futures
+
+# Volume breakout scan on Bybit perpetuals
+trading-cli volume-breakout-scanner --exchange BYBIT --timeframe 4h --futures
+
+# Bollinger scan on OKX futures
+trading-cli bollinger-scan --exchange OKX --timeframe 4h --futures
+```
+
+### Symbol notation
+
+Futures symbols from TradingView use the `.P` suffix (e.g. `BINANCE:BTCUSDT.P`). You can also pass `.P` symbols directly to single-symbol commands:
+
+```bash
+trading-cli coin-analysis --symbol BTCUSDT.P --exchange BINANCE --timeframe 4h
+```
+
+### Updating futures symbol lists
+
+```bash
+# Download futures symbols for all exchanges
+go run ./cmd/fetch-symbols --futures pkg/tools/screener/data
+
+# Or download spot (default)
+go run ./cmd/fetch-symbols pkg/tools/screener/data
+```
+
+---
+
 ## Screening Tools
 
 ### top-gainers
@@ -64,12 +112,13 @@ trading-cli top-gainers --exchange BINANCE --timeframe 1D --limit 10
 | `--exchange` | `BINANCE` | Exchange name |
 | `--timeframe` | `1D` | Candle timeframe |
 | `--limit` | `10` | Number of results |
+| `--futures` | `false` | Use futures/perpetual symbols instead of spot |
 
 **Example output:**
 ```json
 [
   {
-    "symbol": "KUCOIN:DENTUSDT",
+    "symbol": "BINANCE:DENTUSDT",
     "changePercent": 45.6,
     "price": { "open": 0.0012, "close": 0.00175, "high": 0.0018, "low": 0.0011 },
     "volume": 523456789
@@ -107,6 +156,7 @@ trading-cli bollinger-scan --exchange BINANCE --timeframe 4h --bbw-threshold 0.1
 | `--timeframe` | `4h` | Candle timeframe |
 | `--bbw-threshold` | `0.05` | Maximum Bollinger Band width (lower = more compressed) |
 | `--limit` | `10` | Number of results |
+| `--futures` | `false` | Use futures/perpetual symbols instead of spot |
 
 ---
 
@@ -126,6 +176,7 @@ trading-cli rating-filter --exchange BINANCE --timeframe 4h --rating 2
 | `--timeframe` | `4h` | Candle timeframe |
 | `--rating` | `2` | Minimum recommendation rating (-3 to 3, positive = bullish) |
 | `--limit` | `10` | Number of results |
+| `--futures` | `false` | Use futures/perpetual symbols instead of spot |
 
 ---
 
@@ -231,6 +282,7 @@ trading-cli consecutive-candles-scan --exchange BINANCE --timeframe 4h --pattern
 | `--pattern-type` | `bullish` | Pattern type: `bullish` or `bearish` |
 | `--min-growth` | `2.0` | Minimum growth percentage to qualify |
 | `--limit` | `10` | Number of results |
+| `--futures` | `false` | Use futures/perpetual symbols instead of spot |
 
 ---
 
@@ -250,6 +302,7 @@ trading-cli advanced-candle-pattern --exchange BINANCE --base-timeframe 4h --min
 | `--base-timeframe` | `4h` | Candle timeframe |
 | `--min-size-increase` | `10.0` | Minimum size increase percentage |
 | `--limit` | `10` | Number of results |
+| `--futures` | `false` | Use futures/perpetual symbols instead of spot |
 
 ---
 
@@ -272,6 +325,7 @@ trading-cli volume-breakout-scanner --exchange BINANCE --timeframe 1h --volume-m
 | `--volume-multiplier` | `2.0` | Minimum volume ratio vs 10-day average |
 | `--price-change-min` | `3.0` | Minimum price change percentage |
 | `--limit` | `10` | Number of results |
+| `--futures` | `false` | Use futures/perpetual symbols instead of spot |
 
 ---
 
@@ -316,6 +370,7 @@ trading-cli smart-volume-scanner --exchange BINANCE --min-volume-ratio 2.0 --min
 | `--min-price-change` | `2.0` | Minimum price change percentage |
 | `--rsi-range` | `any` | RSI filter: `any`, `oversold`, `neutral`, `overbought` |
 | `--limit` | `10` | Number of results |
+| `--futures` | `false` | Use futures/perpetual symbols instead of spot |
 
 ---
 

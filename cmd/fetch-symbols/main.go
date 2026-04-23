@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/fs"
 	"net/http"
@@ -14,6 +15,10 @@ import (
 const (
 	scannerURL = "https://scanner.tradingview.com/crypto/scan"
 	pageSize   = 500
+)
+
+var (
+	futures bool
 )
 
 var exchanges = []string{
@@ -60,10 +65,15 @@ func fetchSymbols(exchange string) ([]string, error) {
 	offset := 0
 
 	for {
+		marketType := "spot"
+		if futures {
+			marketType = "swap"
+		}
+
 		reqBody := scanRequest{
 			Filter: []scanFilter{
 				{Left: "exchange", Operation: "equal", Right: exchange},
-				{Left: "type", Operation: "equal", Right: "spot"},
+				{Left: "type", Operation: "equal", Right: marketType},
 			},
 			Symbols: scanSymbolsQuery{Query: scanQueryTypes{Types: []string{}}},
 			Columns: []string{"name"},
@@ -118,9 +128,12 @@ func fetchSymbols(exchange string) ([]string, error) {
 }
 
 func main() {
-	dataDir := os.Args[1]
-	if dataDir == "" {
-		dataDir = "pkg/tools/screener/data"
+	flag.BoolVar(&futures, "futures", false, "Fetch futures/perpetual symbols")
+	flag.Parse()
+
+	dataDir := "pkg/tools/screener/data"
+	if args := flag.Args(); len(args) > 0 {
+		dataDir = args[0]
 	}
 
 	// Verify directory exists
@@ -138,7 +151,11 @@ func main() {
 			os.Exit(1)
 		}
 
-		filename := fmt.Sprintf("%s/%s.txt", strings.TrimRight(dataDir, "/"), strings.ToLower(exchange))
+		suffix := ""
+		if futures {
+			suffix = "_futures"
+		}
+		filename := fmt.Sprintf("%s/%s%s.txt", strings.TrimRight(dataDir, "/"), strings.ToLower(exchange), suffix)
 		content := strings.Join(symbols, "\n") + "\n"
 
 		if err := os.WriteFile(filename, []byte(content), fs.FileMode(0644)); err != nil {

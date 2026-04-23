@@ -12,7 +12,7 @@ import (
 )
 
 // RunTopGainers retrieves and displays the top gaining symbols for a given exchange and timeframe
-func RunTopGainers(cfg *config.Config, exchange, timeframe string, limit int) error {
+func RunTopGainers(cfg *config.Config, exchange, timeframe string, limit int, futures bool) error {
 	// Validate inputs
 	if err := utils.ValidateTimeframe(timeframe); err != nil {
 		return err
@@ -23,7 +23,7 @@ func RunTopGainers(cfg *config.Config, exchange, timeframe string, limit int) er
 	}
 
 	// Load symbols
-	symbols, err := LoadSymbols(exchange)
+	symbols, err := LoadSymbols(exchange, futures)
 	if err != nil {
 		return fmt.Errorf("failed to load symbols: %w", err)
 	}

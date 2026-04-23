@@ -12,7 +12,7 @@ import (
 )
 
 // RunBollingerScan retrieves symbols with Bollinger Band Width below the specified threshold
-func RunBollingerScan(cfg *config.Config, exchange, timeframe string, bbwThreshold float64, limit int) error {
+func RunBollingerScan(cfg *config.Config, exchange, timeframe string, bbwThreshold float64, limit int, futures bool) error {
 	// Validate inputs
 	if err := utils.ValidateTimeframe(timeframe); err != nil {
 		return err
@@ -27,7 +27,7 @@ func RunBollingerScan(cfg *config.Config, exchange, timeframe string, bbwThresho
 	}
 
 	// Load symbols
-	symbols, err := LoadSymbols(exchange)
+	symbols, err := LoadSymbols(exchange, futures)
 	if err != nil {
 		return fmt.Errorf("failed to load symbols: %w", err)
 	}
