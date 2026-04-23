@@ -47,9 +47,9 @@ func runListExchanges() error {
 
 func runTopGainers(cfg *config.Config) error {
 	fs := flag.NewFlagSet("top-gainers", flag.ContinueOnError)
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
-	timeframe := fs.String("timeframe", "15m", "Timeframe")
-	limit := fs.Int("limit", 25, "Number of results")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
+	timeframe := fs.String("timeframe", "1D", "Timeframe")
+	limit := fs.Int("limit", 10, "Number of results")
 	fs.Parse(os.Args[2:])
 
 	return screener.RunTopGainers(cfg, *exchange, *timeframe, *limit)
@@ -57,9 +57,9 @@ func runTopGainers(cfg *config.Config) error {
 
 func runTopLosers(cfg *config.Config) error {
 	fs := flag.NewFlagSet("top-losers", flag.ContinueOnError)
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
-	timeframe := fs.String("timeframe", "15m", "Timeframe")
-	limit := fs.Int("limit", 25, "Number of results")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
+	timeframe := fs.String("timeframe", "1D", "Timeframe")
+	limit := fs.Int("limit", 10, "Number of results")
 	fs.Parse(os.Args[2:])
 
 	return screener.RunTopLosers(cfg, *exchange, *timeframe, *limit)
@@ -67,10 +67,10 @@ func runTopLosers(cfg *config.Config) error {
 
 func runBollingerScan(cfg *config.Config) error {
 	fs := flag.NewFlagSet("bollinger-scan", flag.ContinueOnError)
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
-	timeframe := fs.String("timeframe", "15m", "Timeframe")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
+	timeframe := fs.String("timeframe", "4h", "Timeframe")
 	bbwThreshold := fs.Float64("bbw-threshold", 0.04, "Bollinger Band Width threshold")
-	limit := fs.Int("limit", 50, "Number of results")
+	limit := fs.Int("limit", 10, "Number of results")
 	fs.Parse(os.Args[2:])
 
 	return screener.RunBollingerScan(cfg, *exchange, *timeframe, *bbwThreshold, *limit)
@@ -78,10 +78,10 @@ func runBollingerScan(cfg *config.Config) error {
 
 func runRatingFilter(cfg *config.Config) error {
 	fs := flag.NewFlagSet("rating-filter", flag.ContinueOnError)
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
-	timeframe := fs.String("timeframe", "5m", "Timeframe")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
+	timeframe := fs.String("timeframe", "4h", "Timeframe")
 	rating := fs.Int("rating", 2, "Bollinger Band rating (-3 to 3)")
-	limit := fs.Int("limit", 25, "Number of results")
+	limit := fs.Int("limit", 10, "Number of results")
 	fs.Parse(os.Args[2:])
 
 	return screener.RunRatingFilter(cfg, *exchange, *timeframe, *rating, *limit)
@@ -92,8 +92,8 @@ func runRatingFilter(cfg *config.Config) error {
 func runCoinAnalysis(cfg *config.Config) error {
 	fs := flag.NewFlagSet("coin-analysis", flag.ContinueOnError)
 	symbol := fs.String("symbol", "", "Symbol (required)")
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
-	timeframe := fs.String("timeframe", "15m", "Timeframe")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
+	timeframe := fs.String("timeframe", "4h", "Timeframe")
 	fs.Parse(os.Args[2:])
 
 	if *symbol == "" {
@@ -107,11 +107,11 @@ func runCoinAnalysis(cfg *config.Config) error {
 
 func runConsecutiveCandles(cfg *config.Config) error {
 	fs := flag.NewFlagSet("consecutive-candles-scan", flag.ContinueOnError)
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
-	timeframe := fs.String("timeframe", "15m", "Timeframe")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
+	timeframe := fs.String("timeframe", "4h", "Timeframe")
 	patternType := fs.String("pattern-type", "bullish", "Pattern type (bullish/bearish)")
 	minGrowth := fs.Float64("min-growth", 2.0, "Minimum growth percentage")
-	limit := fs.Int("limit", 20, "Number of results")
+	limit := fs.Int("limit", 10, "Number of results")
 	fs.Parse(os.Args[2:])
 
 	return patterns.RunConsecutiveCandles(cfg, *exchange, *timeframe, *patternType, *minGrowth, *limit)
@@ -119,10 +119,10 @@ func runConsecutiveCandles(cfg *config.Config) error {
 
 func runAdvancedCandle(cfg *config.Config) error {
 	fs := flag.NewFlagSet("advanced-candle-pattern", flag.ContinueOnError)
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
-	baseTimeframe := fs.String("base-timeframe", "15m", "Base timeframe")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
+	baseTimeframe := fs.String("base-timeframe", "4h", "Base timeframe")
 	minSizeIncrease := fs.Float64("min-size-increase", 10.0, "Minimum size increase percentage")
-	limit := fs.Int("limit", 15, "Number of results")
+	limit := fs.Int("limit", 10, "Number of results")
 	fs.Parse(os.Args[2:])
 
 	return patterns.RunAdvancedCandle(cfg, *exchange, *baseTimeframe, *minSizeIncrease, *limit)
@@ -132,11 +132,11 @@ func runAdvancedCandle(cfg *config.Config) error {
 
 func runVolumeBreakout(cfg *config.Config) error {
 	fs := flag.NewFlagSet("volume-breakout-scanner", flag.ContinueOnError)
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
-	timeframe := fs.String("timeframe", "15m", "Timeframe")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
+	timeframe := fs.String("timeframe", "4h", "Timeframe")
 	volumeMultiplier := fs.Float64("volume-multiplier", 2.0, "Volume multiplier")
 	priceChangeMin := fs.Float64("price-change-min", 3.0, "Minimum price change percentage")
-	limit := fs.Int("limit", 25, "Number of results")
+	limit := fs.Int("limit", 10, "Number of results")
 	fs.Parse(os.Args[2:])
 
 	return volume.RunVolumeBreakout(cfg, *exchange, *timeframe, *volumeMultiplier, *priceChangeMin, *limit)
@@ -145,8 +145,8 @@ func runVolumeBreakout(cfg *config.Config) error {
 func runVolumeConfirmation(cfg *config.Config) error {
 	fs := flag.NewFlagSet("volume-confirmation-analysis", flag.ContinueOnError)
 	symbol := fs.String("symbol", "", "Symbol (required)")
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
-	timeframe := fs.String("timeframe", "15m", "Timeframe")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
+	timeframe := fs.String("timeframe", "4h", "Timeframe")
 	fs.Parse(os.Args[2:])
 
 	if *symbol == "" {
@@ -158,11 +158,11 @@ func runVolumeConfirmation(cfg *config.Config) error {
 
 func runSmartVolume(cfg *config.Config) error {
 	fs := flag.NewFlagSet("smart-volume-scanner", flag.ContinueOnError)
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
 	minVolumeRatio := fs.Float64("min-volume-ratio", 2.0, "Minimum volume ratio")
 	minPriceChange := fs.Float64("min-price-change", 2.0, "Minimum price change percentage")
 	rsiRange := fs.String("rsi-range", "any", "RSI range (any/oversold/neutral/overbought)")
-	limit := fs.Int("limit", 20, "Number of results")
+	limit := fs.Int("limit", 10, "Number of results")
 	fs.Parse(os.Args[2:])
 
 	return volume.RunSmartVolume(cfg, *exchange, *minVolumeRatio, *minPriceChange, *rsiRange, *limit)
@@ -173,7 +173,7 @@ func runSmartVolume(cfg *config.Config) error {
 func runMultiTimeframe(cfg *config.Config) error {
 	fs := flag.NewFlagSet("multi-timeframe-analysis", flag.ContinueOnError)
 	symbol := fs.String("symbol", "", "Symbol (required)")
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
 	fs.Parse(os.Args[2:])
 
 	if *symbol == "" {
@@ -212,8 +212,8 @@ func runFinancialNews(cfg *config.Config) error {
 func runCombinedAnalysis(cfg *config.Config) error {
 	fs := flag.NewFlagSet("combined-analysis", flag.ContinueOnError)
 	symbol := fs.String("symbol", "", "Symbol (required)")
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
-	timeframe := fs.String("timeframe", "15m", "Timeframe")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
+	timeframe := fs.String("timeframe", "4h", "Timeframe")
 	category := fs.String("category", "all", "Category (all/crypto/stocks)")
 	fs.Parse(os.Args[2:])
 
@@ -326,7 +326,7 @@ func runTradePlan(cfg *config.Config) error {
 func runFibonacci(cfg *config.Config) error {
 	fs := flag.NewFlagSet("fibonacci-retracement", flag.ContinueOnError)
 	symbol := fs.String("symbol", "", "Symbol (required)")
-	exchange := fs.String("exchange", "KUCOIN", "Exchange name")
+	exchange := fs.String("exchange", "BINANCE", "Exchange name")
 	lookback := fs.String("lookback", "52W", "Lookback period (1M, 3M, 6M, 52W, ALL)")
 	timeframe := fs.String("timeframe", "1D", "Timeframe")
 	fs.Parse(os.Args[2:])
