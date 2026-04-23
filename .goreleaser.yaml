@@ -94,9 +94,6 @@ release:
     go install github.com/alorse/trading-cli/cmd/trading-cli@{{.Tag}}
     ```
 
-    ### Binary download
-    Download the appropriate binary for your platform from the assets below.
-
 brews:
   - name: trading-cli
     repository:

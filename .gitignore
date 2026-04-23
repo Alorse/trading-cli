@@ -33,3 +33,7 @@ Thumbs.db
 # Build
 dist/
 build/
+
+# Folders
+logs/
+local/
