@@ -20,6 +20,9 @@ func GetExchanges() []models.ExchangeInfo {
 		{Name: "MEXC", Type: "crypto", Timeframes: tf},
 		{Name: "HUOBI", Type: "crypto", Timeframes: tf},
 		{Name: "BITFINEX", Type: "crypto", Timeframes: tf},
+		{Name: "BINGX", Type: "crypto", Timeframes: tf},
+		{Name: "PHEMEX", Type: "crypto", Timeframes: tf},
+		{Name: "KRAKEN", Type: "crypto", Timeframes: tf},
 		{Name: "NASDAQ", Type: "stock", Timeframes: tf},
 		{Name: "NYSE", Type: "stock", Timeframes: tf},
 	}

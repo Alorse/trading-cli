@@ -21,6 +21,9 @@ var ExchangeToScreener = map[string]string{
 	"MEXC":     "crypto",
 	"HUOBI":    "crypto",
 	"BITFINEX": "crypto",
+	"BINGX":    "crypto",
+	"PHEMEX":   "crypto",
+	"KRAKEN":   "crypto",
 	"NASDAQ":   "america",
 	"NYSE":     "america",
 }
