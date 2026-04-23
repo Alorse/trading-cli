@@ -37,7 +37,7 @@ Complete reference for all 25 commands in trading-cli. All commands output struc
 ## Supported Exchanges
 
 ### Crypto
-`KUCOIN`, `BINANCE`, `BYBIT`, `OKX`, `BITGET`, `COINBASE`, `GATEIO`, `MEXC`, `HUOBI`, `BITFINEX`
+`KUCOIN`, `BINANCE`, `BYBIT`, `OKX`, `BITGET`, `COINBASE`, `GATE`, `MEXC`, `HTX`, `BITFINEX`, `BINGX`, `PHEMEX`, `KRAKEN`
 
 ### Stocks
 `NASDAQ`, `NYSE`
@@ -54,16 +54,16 @@ Complete reference for all 25 commands in trading-cli. All commands output struc
 Top gaining symbols sorted by price change percentage.
 
 ```bash
-trading-cli top-gainers --exchange KUCOIN --timeframe 15m --limit 10
+trading-cli top-gainers --exchange BINANCE --timeframe 1D --limit 10
 ```
 
 **Flags:**
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--exchange` | `KUCOIN` | Exchange name |
-| `--timeframe` | `15m` | Candle timeframe |
-| `--limit` | `25` | Number of results |
+| `--exchange` | `BINANCE` | Exchange name |
+| `--timeframe` | `1D` | Candle timeframe |
+| `--limit` | `10` | Number of results |
 
 **Example output:**
 ```json
@@ -96,17 +96,17 @@ trading-cli top-losers --exchange BINANCE --timeframe 1h --limit 10
 Find symbols with Bollinger Band width below a threshold (potential breakout candidates).
 
 ```bash
-trading-cli bollinger-scan --exchange KUCOIN --timeframe 1h --bbw-threshold 0.10
+trading-cli bollinger-scan --exchange BINANCE --timeframe 4h --bbw-threshold 0.10
 ```
 
 **Flags:**
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--exchange` | `KUCOIN` | Exchange name |
-| `--timeframe` | `15m` | Candle timeframe |
+| `--exchange` | `BINANCE` | Exchange name |
+| `--timeframe` | `4h` | Candle timeframe |
 | `--bbw-threshold` | `0.05` | Maximum Bollinger Band width (lower = more compressed) |
-| `--limit` | `25` | Number of results |
+| `--limit` | `10` | Number of results |
 
 ---
 
@@ -122,10 +122,10 @@ trading-cli rating-filter --exchange BINANCE --timeframe 4h --rating 2
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--exchange` | `KUCOIN` | Exchange name |
-| `--timeframe` | `15m` | Candle timeframe |
+| `--exchange` | `BINANCE` | Exchange name |
+| `--timeframe` | `4h` | Candle timeframe |
 | `--rating` | `2` | Minimum recommendation rating (-3 to 3, positive = bullish) |
-| `--limit` | `25` | Number of results |
+| `--limit` | `10` | Number of results |
 
 ---
 
@@ -136,7 +136,7 @@ trading-cli rating-filter --exchange BINANCE --timeframe 4h --rating 2
 Full technical analysis for a single symbol. Returns **23 indicator groups** sourced from the TradingView scanner API, with locally computed derived fields (signals, positions, trend scores).
 
 ```bash
-trading-cli coin-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 4h
+trading-cli coin-analysis --symbol BTCUSDT --exchange BINANCE --timeframe 4h
 ```
 
 **Flags:**
@@ -144,8 +144,8 @@ trading-cli coin-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 4h
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--symbol` | (required) | Symbol, e.g. BTCUSDT, AAPL |
-| `--exchange` | `KUCOIN` | Exchange name |
-| `--timeframe` | `15m` | Candle timeframe |
+| `--exchange` | `BINANCE` | Exchange name |
+| `--timeframe` | `4h` | Candle timeframe |
 
 **Indicator groups:**
 
@@ -192,7 +192,7 @@ trading-cli multi-timeframe-analysis --symbol ETHUSDT --exchange BINANCE
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--symbol` | (required) | Symbol |
-| `--exchange` | `KUCOIN` | Exchange name |
+| `--exchange` | `BINANCE` | Exchange name |
 
 **Per-timeframe evaluation:**
 
@@ -226,11 +226,11 @@ trading-cli consecutive-candles-scan --exchange BINANCE --timeframe 4h --pattern
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--exchange` | `KUCOIN` | Exchange name |
-| `--timeframe` | `15m` | Candle timeframe |
+| `--exchange` | `BINANCE` | Exchange name |
+| `--timeframe` | `4h` | Candle timeframe |
 | `--pattern-type` | `bullish` | Pattern type: `bullish` or `bearish` |
 | `--min-growth` | `2.0` | Minimum growth percentage to qualify |
-| `--limit` | `20` | Number of results |
+| `--limit` | `10` | Number of results |
 
 ---
 
@@ -239,17 +239,17 @@ trading-cli consecutive-candles-scan --exchange BINANCE --timeframe 4h --pattern
 Detects advanced multi-candle patterns (hammer, engulfing, doji, etc.) with a 0-7 scoring system. Patterns with score >= 3 qualify.
 
 ```bash
-trading-cli advanced-candle-pattern --exchange KUCOIN --base-timeframe 1h --min-size-increase 5.0
+trading-cli advanced-candle-pattern --exchange BINANCE --base-timeframe 4h --min-size-increase 5.0
 ```
 
 **Flags:**
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--exchange` | `KUCOIN` | Exchange name |
-| `--base-timeframe` | `15m` | Candle timeframe |
+| `--exchange` | `BINANCE` | Exchange name |
+| `--base-timeframe` | `4h` | Candle timeframe |
 | `--min-size-increase` | `10.0` | Minimum size increase percentage |
-| `--limit` | `15` | Number of results |
+| `--limit` | `10` | Number of results |
 
 ---
 
@@ -267,11 +267,11 @@ trading-cli volume-breakout-scanner --exchange BINANCE --timeframe 1h --volume-m
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--exchange` | `KUCOIN` | Exchange name |
-| `--timeframe` | `15m` | Candle timeframe |
+| `--exchange` | `BINANCE` | Exchange name |
+| `--timeframe` | `4h` | Candle timeframe |
 | `--volume-multiplier` | `2.0` | Minimum volume ratio vs 10-day average |
 | `--price-change-min` | `3.0` | Minimum price change percentage |
-| `--limit` | `25` | Number of results |
+| `--limit` | `10` | Number of results |
 
 ---
 
@@ -280,7 +280,7 @@ trading-cli volume-breakout-scanner --exchange BINANCE --timeframe 1h --volume-m
 Analyzes whether volume confirms or diverges from price action for a single symbol.
 
 ```bash
-trading-cli volume-confirmation-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 4h
+trading-cli volume-confirmation-analysis --symbol BTCUSDT --exchange BINANCE --timeframe 4h
 ```
 
 **Flags:**
@@ -288,8 +288,8 @@ trading-cli volume-confirmation-analysis --symbol BTCUSDT --exchange KUCOIN --ti
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--symbol` | (required) | Symbol |
-| `--exchange` | `KUCOIN` | Exchange name |
-| `--timeframe` | `15m` | Candle timeframe |
+| `--exchange` | `BINANCE` | Exchange name |
+| `--timeframe` | `4h` | Candle timeframe |
 
 **Key output fields:**
 - `volume.ratio` — Current volume / 10-day average
@@ -311,11 +311,11 @@ trading-cli smart-volume-scanner --exchange BINANCE --min-volume-ratio 2.0 --min
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--exchange` | `KUCOIN` | Exchange name |
+| `--exchange` | `BINANCE` | Exchange name |
 | `--min-volume-ratio` | `2.0` | Minimum volume ratio |
 | `--min-price-change` | `2.0` | Minimum price change percentage |
 | `--rsi-range` | `any` | RSI filter: `any`, `oversold`, `neutral`, `overbought` |
-| `--limit` | `20` | Number of results |
+| `--limit` | `10` | Number of results |
 
 ---
 
@@ -364,7 +364,7 @@ trading-cli financial-news --category crypto
 Combines technical analysis, sentiment, and news into a single confluence report with confidence rating.
 
 ```bash
-trading-cli combined-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 4h --category crypto
+trading-cli combined-analysis --symbol BTCUSDT --exchange BINANCE --timeframe 4h --category crypto
 ```
 
 **Flags:**
@@ -372,8 +372,8 @@ trading-cli combined-analysis --symbol BTCUSDT --exchange KUCOIN --timeframe 4h 
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--symbol` | (required) | Symbol |
-| `--exchange` | `KUCOIN` | Exchange name |
-| `--timeframe` | `15m` | Candle timeframe |
+| `--exchange` | `BINANCE` | Exchange name |
+| `--timeframe` | `4h` | Candle timeframe |
 | `--category` | `general` | News category |
 
 **Key output fields:**
@@ -420,6 +420,8 @@ trading-cli backtest-strategy --symbol ETH-USD --strategy rsi --period 1y --inte
 | `--initial-capital` | `10000` | Starting capital |
 | `--commission-pct` | `0.1` | Commission percentage |
 | `--slippage-pct` | `0.05` | Slippage percentage |
+| `--include-trade-log` | `false` | Include trade log in output |
+| `--include-equity-curve` | `false` | Include equity curve in output |
 
 **Key output fields:**
 - `totalReturn` — Net return percentage
@@ -447,8 +449,6 @@ trading-cli compare-strategies --symbol ETH-USD --period 1y
 | `--period` | `1y` | Lookback period |
 | `--interval` | `1d` | Candle interval |
 | `--initial-capital` | `10000` | Starting capital |
-| `--commission-pct` | `0.1` | Commission percentage |
-| `--slippage-pct` | `0.05` | Slippage percentage |
 
 **Key output fields:**
 - `winner` — Best performing strategy name
@@ -530,15 +530,17 @@ No flags required.
 Computes Fibonacci retracement and extension levels with golden pocket detection. Uses Yahoo Finance historical data for swing detection.
 
 ```bash
-trading-cli fibonacci-retracement --symbol ETH-USD --period 6mo
+trading-cli fibonacci-retracement --symbol ETH-USD --exchange BINANCE --lookback 6mo --timeframe 1D
 ```
 
 **Flags:**
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--symbol` | (required) | Yahoo Finance symbol |
-| `--period` | `1y` | Lookback period for swing detection |
+| `--symbol` | (required) | Symbol |
+| `--exchange` | `BINANCE` | Exchange name |
+| `--lookback` | `52W` | Lookback period (`1M`, `3M`, `6M`, `52W`, `ALL`) |
+| `--timeframe` | `1D` | Candle timeframe |
 
 **Key output fields:**
 - `trend` — uptrend / downtrend
