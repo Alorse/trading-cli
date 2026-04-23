@@ -1,5 +1,6 @@
 # Binaries
 /trading-cli
+/fetch-symbols
 *.exe
 *.exe~
 *.dll
