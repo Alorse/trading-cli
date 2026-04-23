@@ -96,7 +96,7 @@ func scoreAdvancedCandleEntry(bodyRatio, change, volume, rsi, close, ema50 float
 }
 
 // RunAdvancedCandle scans for advanced candle patterns
-func RunAdvancedCandle(cfg *config.Config, exchange, baseTimeframe string, minSizeIncrease float64, limit int) error {
+func RunAdvancedCandle(cfg *config.Config, exchange, baseTimeframe string, minSizeIncrease float64, limit int, futures bool) error {
 	// Validate inputs
 	if exchange == "" {
 		return fmt.Errorf("exchange cannot be empty")
@@ -109,7 +109,7 @@ func RunAdvancedCandle(cfg *config.Config, exchange, baseTimeframe string, minSi
 	}
 
 	// Load symbols
-	symbols, err := screener.LoadSymbols(exchange)
+	symbols, err := screener.LoadSymbols(exchange, futures)
 	if err != nil {
 		return fmt.Errorf("load symbols: %w", err)
 	}

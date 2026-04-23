@@ -71,7 +71,7 @@ func computeTradingRecommendation(change, ratio, rsi float64) string {
 }
 
 // RunSmartVolume performs smart volume scanning with RSI filtering
-func RunSmartVolume(cfg *config.Config, exchange string, minVolumeRatio, minPriceChange float64, rsiRange string, limit int) error {
+func RunSmartVolume(cfg *config.Config, exchange string, minVolumeRatio, minPriceChange float64, rsiRange string, limit int, futures bool) error {
 	// Validate inputs
 	if exchange == "" {
 		return fmt.Errorf("exchange cannot be empty")
@@ -84,7 +84,7 @@ func RunSmartVolume(cfg *config.Config, exchange string, minVolumeRatio, minPric
 	}
 
 	// Load symbols
-	symbols, err := screener.LoadSymbols(exchange)
+	symbols, err := screener.LoadSymbols(exchange, futures)
 	if err != nil {
 		return fmt.Errorf("load symbols: %w", err)
 	}

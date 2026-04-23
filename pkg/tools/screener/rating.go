@@ -12,7 +12,7 @@ import (
 )
 
 // RunRatingFilter retrieves symbols with a specific Bollinger Band rating
-func RunRatingFilter(cfg *config.Config, exchange, timeframe string, rating, limit int) error {
+func RunRatingFilter(cfg *config.Config, exchange, timeframe string, rating, limit int, futures bool) error {
 	// Validate inputs
 	if err := utils.ValidateTimeframe(timeframe); err != nil {
 		return err
@@ -27,7 +27,7 @@ func RunRatingFilter(cfg *config.Config, exchange, timeframe string, rating, lim
 	}
 
 	// Load symbols
-	symbols, err := LoadSymbols(exchange)
+	symbols, err := LoadSymbols(exchange, futures)
 	if err != nil {
 		return fmt.Errorf("failed to load symbols: %w", err)
 	}

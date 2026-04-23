@@ -11,11 +11,15 @@ import (
 //go:embed data/*.txt
 var symbolsFS embed.FS
 
-// LoadSymbols reads symbol data from the embedded data/symbols/{exchange}.txt
+// LoadSymbols reads symbol data from the embedded data/{exchange}.txt (or data/{exchange}_futures.txt if futures is true).
 // Returns a slice of symbol strings, skipping blank lines and comments (lines starting with #)
 // Returns an error if the file is not found
-func LoadSymbols(exchange string) ([]string, error) {
-	filename := strings.ToLower(exchange) + ".txt"
+func LoadSymbols(exchange string, futures bool) ([]string, error) {
+	filename := strings.ToLower(exchange)
+	if futures {
+		filename += "_futures"
+	}
+	filename += ".txt"
 
 	data, err := symbolsFS.ReadFile("data/" + filename)
 	if err != nil {

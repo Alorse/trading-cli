@@ -9,7 +9,7 @@ import (
 // TestLoadSymbols tests loading symbols from the embedded data
 func TestLoadSymbols(t *testing.T) {
 	// Test loading a real embedded exchange file (kucoin)
-	symbols, err := LoadSymbols("kucoin")
+	symbols, err := LoadSymbols("kucoin", false)
 	if err != nil {
 		t.Fatalf("LoadSymbols failed: %v", err)
 	}
@@ -40,9 +40,41 @@ func TestLoadSymbols(t *testing.T) {
 
 // TestLoadSymbols_FileNotFound tests error handling for missing file
 func TestLoadSymbols_FileNotFound(t *testing.T) {
-	_, err := LoadSymbols("nonexistent")
+	_, err := LoadSymbols("nonexistent", false)
 	if err == nil {
 		t.Error("expected error for nonexistent file")
+	}
+}
+
+// TestLoadSymbols_Futures tests loading futures symbols
+func TestLoadSymbols_Futures(t *testing.T) {
+	symbols, err := LoadSymbols("test", true)
+	if err != nil {
+		t.Fatalf("LoadSymbols(test, true) failed: %v", err)
+	}
+
+	if len(symbols) == 0 {
+		t.Fatal("expected non-empty futures symbol list")
+	}
+
+	// Verify futures symbols end with .P
+	foundPerp := false
+	for _, sym := range symbols {
+		if len(sym) > 2 && sym[len(sym)-2:] == ".P" {
+			foundPerp = true
+			break
+		}
+	}
+	if !foundPerp {
+		t.Error("expected at least one futures symbol ending in .P")
+	}
+}
+
+// TestLoadSymbols_Futures_NotFound tests error for missing futures file
+func TestLoadSymbols_Futures_NotFound(t *testing.T) {
+	_, err := LoadSymbols("nonexistent", true)
+	if err == nil {
+		t.Error("expected error for nonexistent futures file")
 	}
 }
 
@@ -59,6 +91,8 @@ func TestFormatTicker(t *testing.T) {
 		// Already has exchange prefix
 		{"binance", "BINANCE:BTCUSDT", "BINANCE:BTCUSDT"},
 		{"nasdaq", "NYSE:IBM", "NYSE:IBM"},
+		{"binance", "BTCUSDT.P", "BINANCE:BTCUSDT.P"},
+		{"bybit", "ETHUSDT.P", "BYBIT:ETHUSDT.P"},
 	}
 
 	for _, tc := range cases {

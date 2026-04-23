@@ -50,9 +50,10 @@ func runTopGainers(cfg *config.Config) error {
 	exchange := fs.String("exchange", "BINANCE", "Exchange name")
 	timeframe := fs.String("timeframe", "1D", "Timeframe")
 	limit := fs.Int("limit", 10, "Number of results")
+	futures := fs.Bool("futures", false, "Use futures/perpetual symbols")
 	fs.Parse(os.Args[2:])
 
-	return screener.RunTopGainers(cfg, *exchange, *timeframe, *limit)
+	return screener.RunTopGainers(cfg, *exchange, *timeframe, *limit, *futures)
 }
 
 func runTopLosers(cfg *config.Config) error {
@@ -60,9 +61,10 @@ func runTopLosers(cfg *config.Config) error {
 	exchange := fs.String("exchange", "BINANCE", "Exchange name")
 	timeframe := fs.String("timeframe", "1D", "Timeframe")
 	limit := fs.Int("limit", 10, "Number of results")
+	futures := fs.Bool("futures", false, "Use futures/perpetual symbols")
 	fs.Parse(os.Args[2:])
 
-	return screener.RunTopLosers(cfg, *exchange, *timeframe, *limit)
+	return screener.RunTopLosers(cfg, *exchange, *timeframe, *limit, *futures)
 }
 
 func runBollingerScan(cfg *config.Config) error {
@@ -71,9 +73,10 @@ func runBollingerScan(cfg *config.Config) error {
 	timeframe := fs.String("timeframe", "4h", "Timeframe")
 	bbwThreshold := fs.Float64("bbw-threshold", 0.04, "Bollinger Band Width threshold")
 	limit := fs.Int("limit", 10, "Number of results")
+	futures := fs.Bool("futures", false, "Use futures/perpetual symbols")
 	fs.Parse(os.Args[2:])
 
-	return screener.RunBollingerScan(cfg, *exchange, *timeframe, *bbwThreshold, *limit)
+	return screener.RunBollingerScan(cfg, *exchange, *timeframe, *bbwThreshold, *limit, *futures)
 }
 
 func runRatingFilter(cfg *config.Config) error {
@@ -82,9 +85,10 @@ func runRatingFilter(cfg *config.Config) error {
 	timeframe := fs.String("timeframe", "4h", "Timeframe")
 	rating := fs.Int("rating", 2, "Bollinger Band rating (-3 to 3)")
 	limit := fs.Int("limit", 10, "Number of results")
+	futures := fs.Bool("futures", false, "Use futures/perpetual symbols")
 	fs.Parse(os.Args[2:])
 
-	return screener.RunRatingFilter(cfg, *exchange, *timeframe, *rating, *limit)
+	return screener.RunRatingFilter(cfg, *exchange, *timeframe, *rating, *limit, *futures)
 }
 
 // Analysis tools
@@ -112,9 +116,10 @@ func runConsecutiveCandles(cfg *config.Config) error {
 	patternType := fs.String("pattern-type", "bullish", "Pattern type (bullish/bearish)")
 	minGrowth := fs.Float64("min-growth", 2.0, "Minimum growth percentage")
 	limit := fs.Int("limit", 10, "Number of results")
+	futures := fs.Bool("futures", false, "Use futures/perpetual symbols")
 	fs.Parse(os.Args[2:])
 
-	return patterns.RunConsecutiveCandles(cfg, *exchange, *timeframe, *patternType, *minGrowth, *limit)
+	return patterns.RunConsecutiveCandles(cfg, *exchange, *timeframe, *patternType, *minGrowth, *limit, *futures)
 }
 
 func runAdvancedCandle(cfg *config.Config) error {
@@ -123,9 +128,10 @@ func runAdvancedCandle(cfg *config.Config) error {
 	baseTimeframe := fs.String("base-timeframe", "4h", "Base timeframe")
 	minSizeIncrease := fs.Float64("min-size-increase", 10.0, "Minimum size increase percentage")
 	limit := fs.Int("limit", 10, "Number of results")
+	futures := fs.Bool("futures", false, "Use futures/perpetual symbols")
 	fs.Parse(os.Args[2:])
 
-	return patterns.RunAdvancedCandle(cfg, *exchange, *baseTimeframe, *minSizeIncrease, *limit)
+	return patterns.RunAdvancedCandle(cfg, *exchange, *baseTimeframe, *minSizeIncrease, *limit, *futures)
 }
 
 // Volume tools
@@ -137,9 +143,10 @@ func runVolumeBreakout(cfg *config.Config) error {
 	volumeMultiplier := fs.Float64("volume-multiplier", 2.0, "Volume multiplier")
 	priceChangeMin := fs.Float64("price-change-min", 3.0, "Minimum price change percentage")
 	limit := fs.Int("limit", 10, "Number of results")
+	futures := fs.Bool("futures", false, "Use futures/perpetual symbols")
 	fs.Parse(os.Args[2:])
 
-	return volume.RunVolumeBreakout(cfg, *exchange, *timeframe, *volumeMultiplier, *priceChangeMin, *limit)
+	return volume.RunVolumeBreakout(cfg, *exchange, *timeframe, *volumeMultiplier, *priceChangeMin, *limit, *futures)
 }
 
 func runVolumeConfirmation(cfg *config.Config) error {
@@ -163,9 +170,10 @@ func runSmartVolume(cfg *config.Config) error {
 	minPriceChange := fs.Float64("min-price-change", 2.0, "Minimum price change percentage")
 	rsiRange := fs.String("rsi-range", "any", "RSI range (any/oversold/neutral/overbought)")
 	limit := fs.Int("limit", 10, "Number of results")
+	futures := fs.Bool("futures", false, "Use futures/perpetual symbols")
 	fs.Parse(os.Args[2:])
 
-	return volume.RunSmartVolume(cfg, *exchange, *minVolumeRatio, *minPriceChange, *rsiRange, *limit)
+	return volume.RunSmartVolume(cfg, *exchange, *minVolumeRatio, *minPriceChange, *rsiRange, *limit, *futures)
 }
 
 // Multi-timeframe

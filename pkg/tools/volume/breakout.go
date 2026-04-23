@@ -77,7 +77,7 @@ func computeBreakoutType(change float64) string {
 }
 
 // RunVolumeBreakout scans for volume breakouts
-func RunVolumeBreakout(cfg *config.Config, exchange, timeframe string, volumeMultiplier, priceChangeMin float64, limit int) error {
+func RunVolumeBreakout(cfg *config.Config, exchange, timeframe string, volumeMultiplier, priceChangeMin float64, limit int, futures bool) error {
 	// Validate inputs
 	if exchange == "" {
 		return fmt.Errorf("exchange cannot be empty")
@@ -90,7 +90,7 @@ func RunVolumeBreakout(cfg *config.Config, exchange, timeframe string, volumeMul
 	}
 
 	// Load symbols
-	symbols, err := screener.LoadSymbols(exchange)
+	symbols, err := screener.LoadSymbols(exchange, futures)
 	if err != nil {
 		return fmt.Errorf("load symbols: %w", err)
 	}
