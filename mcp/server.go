@@ -102,7 +102,15 @@ func (s *Server) handleToolsList(req *Request) *Response {
 
 func (s *Server) handleToolsCall(req *Request) *Response {
 	var params ToolCallParams
-	if err := json.Unmarshal(req.Params, &params); err != nil {
+	raw, err := json.Marshal(req.Params)
+	if err != nil {
+		return &Response{
+			JSONRPC: "2.0",
+			ID:      req.ID,
+			Error:   &Error{Code: ErrInvalidParams, Message: fmt.Sprintf("invalid params: %v", err)},
+		}
+	}
+	if err := json.Unmarshal(raw, &params); err != nil {
 		return &Response{
 			JSONRPC: "2.0",
 			ID:      req.ID,
