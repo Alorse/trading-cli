@@ -73,6 +73,51 @@ trading-cli health
 
 All commands output structured JSON to stdout. Errors go to stderr with a non-zero exit code.
 
+## MCP Server
+
+trading-cli can run as an MCP server over stdio, exposing all 25 tools to AI agents like Claude Code, Cursor, or any MCP-compatible client.
+
+### Start the server
+
+```bash
+trading-cli mcp
+```
+
+The server speaks JSON-RPC 2.0 over stdin/stdout. No flags or configuration needed — just pipe stdin and read stdout.
+
+### Claude Code / Cowork
+
+Create `.mcp.json` in your project root (already included in this repo):
+
+```json
+{
+  "mcpServers": {
+    "trading-cli": {
+      "command": "trading-cli",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+If trading-cli is installed via Homebrew or `go install`, Claude Code will find it on `$PATH`. Otherwise, use the full path to the binary.
+
+### Available tools
+
+All 25 CLI commands are exposed as MCP tools with the same parameters (using `snake_case` names). See [docs/TOOLS.md](docs/TOOLS.md) for parameter details.
+
+| Category | Tools |
+|----------|-------|
+| Screening | `top_gainers`, `top_losers`, `bollinger_scan`, `rating_filter` |
+| Analysis | `coin_analysis`, `multi_timeframe_analysis` |
+| Patterns | `consecutive_candles_scan`, `advanced_candle_pattern` |
+| Volume | `volume_breakout_scanner`, `volume_confirmation_analysis`, `smart_volume_scanner` |
+| Sentiment | `market_sentiment`, `financial_news`, `combined_analysis` |
+| Backtesting | `backtest_strategy`, `compare_strategies`, `walk_forward_backtest` |
+| Yahoo Finance | `yahoo_price`, `market_snapshot` |
+| Planning | `trade_plan`, `fibonacci_retracement` |
+| System | `list_exchanges`, `version`, `health` |
+
 ## Development
 
 ```bash
