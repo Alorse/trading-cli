@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/alorse/trading-cli/internal/config"
+	"github.com/alorse/trading-cli/mcp"
 )
 
 func main() {
@@ -68,6 +69,12 @@ func main() {
 		err = runFibonacci(cfg)
 	case "list-exchanges":
 		err = runListExchanges()
+	case "mcp":
+		if err := mcp.Run(); err != nil {
+			fmt.Fprintf(os.Stderr, "mcp server error: %v\n", err)
+			os.Exit(1)
+		}
+		return
 	default:
 		fmt.Fprintf(os.Stderr, "unknown command: %s\n", cmd)
 		printUsage()

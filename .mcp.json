@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "trading-cli": {
+      "command": "trading-cli",
+      "args": ["mcp"]
+    }
+  }
+}
