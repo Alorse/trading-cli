@@ -70,6 +70,13 @@ func main() {
 	case "list-exchanges":
 		err = runListExchanges()
 	case "mcp":
+		if len(os.Args) >= 3 && os.Args[2] == "install" {
+			if err := runMCPInstall(os.Args[3:]); err != nil {
+				fmt.Fprintf(os.Stderr, "error: %v\n", err)
+				os.Exit(1)
+			}
+			return
+		}
 		if err := mcp.Run(); err != nil {
 			fmt.Fprintf(os.Stderr, "mcp server error: %v\n", err)
 			os.Exit(1)

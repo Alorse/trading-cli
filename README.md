@@ -77,7 +77,27 @@ All commands output structured JSON to stdout. Errors go to stderr with a non-ze
 
 trading-cli can run as an MCP server over stdio, exposing all 25 tools to AI agents like Claude Code, Cursor, or any MCP-compatible client.
 
-### Start the server
+### Quick install
+
+```bash
+trading-cli mcp install                        # Claude Desktop (default)
+trading-cli mcp install --client claude-code   # Claude Code
+trading-cli mcp install --client cursor        # Cursor
+trading-cli mcp install --client windsurf      # Windsurf
+trading-cli mcp install --client codex         # OpenAI Codex CLI
+trading-cli mcp install --client vscode        # VS Code Copilot
+trading-cli mcp install --client gemini        # Gemini CLI
+trading-cli mcp install --client amazon-q      # Amazon Q Developer
+trading-cli mcp install --client zed           # Zed
+trading-cli mcp install --client lm-studio     # LM Studio
+trading-cli mcp install --client --list        # show all supported clients
+```
+
+This command writes the MCP config into your client's settings file automatically. No manual JSON editing needed.
+
+Use `--dry-run` to preview the change or `--force` to overwrite an existing entry.
+
+### Start the server manually
 
 ```bash
 trading-cli mcp
@@ -85,9 +105,9 @@ trading-cli mcp
 
 The server speaks JSON-RPC 2.0 over stdin/stdout. No flags or configuration needed — just pipe stdin and read stdout.
 
-### Claude Code / Cowork
+### Manual config
 
-Create `.mcp.json` in your project root (already included in this repo):
+If you prefer to edit the config yourself, add this to your client's MCP settings:
 
 ```json
 {
@@ -100,7 +120,7 @@ Create `.mcp.json` in your project root (already included in this repo):
 }
 ```
 
-If trading-cli is installed via Homebrew or `go install`, Claude Code will find it on `$PATH`. Otherwise, use the full path to the binary.
+If trading-cli is installed via Homebrew or `go install`, the binary is on `$PATH`. Otherwise, use the full path to the binary.
 
 ### Available tools
 
