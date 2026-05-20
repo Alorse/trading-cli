@@ -22,9 +22,16 @@ type Config struct {
 }
 
 // Load reads configuration from environment variables with sensible defaults.
-// Also loads a .env file from cwd if present (key=value lines, # comments).
+// Also loads .env files from well-known locations (first match wins per-key;
+// already-set env vars are never overridden):
+//   1. ./.env (current working directory)
+//   2. ~/.picoclaw/.env (picoclaw agent integration)
+//   3. ~/.trading-cli.env (standalone fallback)
+// This makes the binary work from cron/systemd without a sourcing wrapper.
 func Load() *Config {
-	loadDotenv(".env")
+	for _, p := range candidateEnvPaths() {
+		loadDotenv(p)
+	}
 	return &Config{
 		HTTPTimeout:     getEnvDuration("HTTP_TIMEOUT", 30*time.Second),
 		MaxRetries:      getEnvInt("MAX_RETRIES", 3),
@@ -36,6 +43,19 @@ func Load() *Config {
 		PhemexAPISecret: os.Getenv("PHEMEX_API_SECRET"),
 		PhemexAPIURL:    getEnvString("PHEMEX_API_URL", "https://testnet-api.phemex.com"),
 	}
+}
+
+// candidateEnvPaths returns the ordered list of .env locations to try.
+// Returns empty paths silently if HOME is unset (cron with no HOME).
+func candidateEnvPaths() []string {
+	paths := []string{".env"}
+	if home, err := os.UserHomeDir(); err == nil && home != "" {
+		paths = append(paths,
+			home+"/.picoclaw/.env",
+			home+"/.trading-cli.env",
+		)
+	}
+	return paths
 }
 
 // loadDotenv reads a .env file (best-effort) and sets unset env vars.
