@@ -45,7 +45,7 @@ func RunCompareStrategies(cfg *config.Config, symbol, period, interval string, i
 	}
 
 	// Define all strategies
-	strategyNames := []string{"rsi", "bollinger", "macd", "ema-cross", "supertrend", "donchian"}
+	strategyNames := []string{"rsi", "bollinger", "macd", "ema-cross", "supertrend", "donchian", "stochrsi-supertrend", "dmi-adx-trend", "ttm-squeeze", "wvf", "range-filter"}
 	var results []BacktestResult
 
 	// Run all strategies
