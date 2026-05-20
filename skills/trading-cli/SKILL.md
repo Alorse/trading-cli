@@ -71,7 +71,11 @@ if sl_distance > 0.10:        # rare
     qty = notional / entry_price
 ```
 
-PHEMEX cross-margin uses 5x by default for new symbols. Don't set leverage inline; the position will inherit. Verify `leverageRr` in `phemex positions` after first trade per symbol.
+**Leverage must be set explicitly to 5x cross on every symbol before the first order on it.** PHEMEX defaults new symbols to 10x cross. Run once per symbol:
+```bash
+trading-cli phemex set-leverage --symbol BTCUSDT --leverage 5 --margin cross
+```
+After this, all future positions on that symbol will be 5x cross until reset. Verify with `phemex positions`: `leverageRr` should be `"-5"` (negative = cross, absolute = 5x). If `-10` is shown, re-run `set-leverage` before placing the order.
 
 ## Commands
 
@@ -98,6 +102,7 @@ PHEMEX trading (auth):
                      --qty 0.001 --sl 76000 --tp 79000 [--ord-type Limit --price X]
                      [--reduce-only] [--cl-ord-id ID] [--tif GoodTillCancel]
   phemex cancel --symbol BTCUSDT --order-id <id> --pos-side Long
+  phemex set-leverage --symbol BTCUSDT --leverage 5 --margin cross  # run once per new symbol
 
 Backtest (Yahoo, only for reference / strategy R&D):
   compare-strategies --symbol BTC-USD --interval 1h --period 6mo
@@ -129,6 +134,10 @@ B. EVALUATE NEW ENTRIES
       - Market:  score ≥75 AND 1h change in 1-3% range AND momentum healthy
       - Limit:   score 65-75 → place below current at 1h EMA20 / BB middle, 4h expiry
       - SKIP:    anything else; wait next hour
+   5. BEFORE placing the first order on a NEW symbol (one you haven't traded yet
+      in this session), run set-leverage to enforce 5x cross:
+        trading-cli phemex set-leverage --symbol <SYM> --leverage 5 --margin cross
+      Skip this step if `phemex positions` already shows leverageRr=-5 for the symbol.
 
 C. HOUSEKEEPING
    Cancel any Limit order older than 6 hours unfilled — setup expired.

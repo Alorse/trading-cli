@@ -178,6 +178,47 @@ func RunPlaceOrder(cfg *config.Config, o PlaceOrderOpts) error {
 	return printRaw(body)
 }
 
+// RunSetLeverage: PUT /g-positions/leverage
+// Sets long+short leverage caps on a symbol in hedged mode.
+// marginType: "cross" (default) or "isolated". leverage is positive integer 1-100.
+// PHEMEX convention: cross = negative leverageRr, isolated = positive.
+func RunSetLeverage(cfg *config.Config, symbol string, leverage int, marginType string) error {
+	if symbol == "" {
+		return fmt.Errorf("--symbol is required")
+	}
+	if leverage < 1 || leverage > 100 {
+		return fmt.Errorf("--leverage must be between 1 and 100")
+	}
+	mt := strings.ToLower(marginType)
+	if mt == "" {
+		mt = "cross"
+	}
+	signed := leverage
+	if mt == "cross" {
+		signed = -leverage
+	} else if mt != "isolated" {
+		return fmt.Errorf("--margin must be 'cross' or 'isolated'")
+	}
+	pc, err := newClient(cfg)
+	if err != nil {
+		return err
+	}
+	c, cancel := ctx()
+	defer cancel()
+	lev := fmt.Sprintf("%d", signed)
+	body, err := pc.Do(c, "PUT", "/g-positions/leverage", map[string]string{
+		"symbol":           strings.ToUpper(symbol),
+		"longLeverageRr":   lev,
+		"shortLeverageRr":  lev,
+	}, nil)
+	if err != nil {
+		fmt.Fprintf(printToStderr(), "%s\n", string(body))
+		return err
+	}
+	fmt.Fprintf(printToStderr(), "# base=%s leverage=%s (negative=cross)\n", pc.BaseURL(), lev)
+	return printRaw(body)
+}
+
 // RunCancelOrder: DELETE /g-orders/cancel?orderID=...&symbol=...&posSide=...
 func RunCancelOrder(cfg *config.Config, symbol, orderID, posSide string) error {
 	if symbol == "" || orderID == "" || posSide == "" {

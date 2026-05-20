@@ -382,7 +382,8 @@ subcommands:
   positions [--currency USDT]
   orders --symbol BTCUSDT
   place-order --symbol BTCUSDT --side Buy --pos-side Long --ord-type Market --qty 0.001 [--price ...] [--sl ...] [--tp ...] [--reduce-only] [--tif GoodTillCancel]
-  cancel --symbol BTCUSDT --order-id <id> --pos-side Long`)
+  cancel --symbol BTCUSDT --order-id <id> --pos-side Long
+  set-leverage --symbol BTCUSDT --leverage 5 [--margin cross|isolated]`)
 	}
 	sub := args[0]
 	rest := args[1:]
@@ -428,6 +429,13 @@ subcommands:
 		posSide := fs.String("pos-side", "Long", "Long/Short/Merged")
 		fs.Parse(rest)
 		return phemex.RunCancelOrder(cfg, *symbol, *orderID, *posSide)
+	case "set-leverage":
+		fs := flag.NewFlagSet("phemex set-leverage", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol")
+		leverage := fs.Int("leverage", 5, "Leverage 1-100")
+		margin := fs.String("margin", "cross", "cross or isolated")
+		fs.Parse(rest)
+		return phemex.RunSetLeverage(cfg, *symbol, *leverage, *margin)
 	default:
 		return fmt.Errorf("unknown phemex subcommand: %s", sub)
 	}
