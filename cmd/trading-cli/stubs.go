@@ -9,6 +9,7 @@ import (
 	"github.com/alorse/trading-cli/internal/config"
 	"github.com/alorse/trading-cli/pkg/tools/analysis"
 	"github.com/alorse/trading-cli/pkg/tools/backtest"
+	"github.com/alorse/trading-cli/pkg/tools/futures"
 	"github.com/alorse/trading-cli/pkg/tools/mtf"
 	"github.com/alorse/trading-cli/pkg/tools/patterns"
 	"github.com/alorse/trading-cli/pkg/tools/plan"
@@ -344,6 +345,32 @@ func runFibonacci(cfg *config.Config) error {
 	}
 
 	return plan.RunFibonacci(cfg, *symbol, *exchange, *lookback, *timeframe)
+}
+
+func runFundingRates(cfg *config.Config) error {
+	fs := flag.NewFlagSet("funding-rates", flag.ContinueOnError)
+	mode := fs.String("mode", "extreme", "extreme | positive | negative (extreme = abs sort)")
+	limit := fs.Int("limit", 25, "Number of results (1-100)")
+	minTurnover := fs.Float64("min-turnover", 1000000, "Min 24h turnover in USDT")
+	fs.Parse(os.Args[2:])
+	return futures.RunFundingRates(cfg, *mode, *limit, *minTurnover)
+}
+
+func runOpenInterest(cfg *config.Config) error {
+	fs := flag.NewFlagSet("open-interest", flag.ContinueOnError)
+	limit := fs.Int("limit", 25, "Number of results (1-100)")
+	minTurnover := fs.Float64("min-turnover", 1000000, "Min 24h turnover in USDT")
+	fs.Parse(os.Args[2:])
+	return futures.RunOpenInterest(cfg, *limit, *minTurnover)
+}
+
+func runScalpScan(cfg *config.Config) error {
+	fs := flag.NewFlagSet("scalp-scan", flag.ContinueOnError)
+	limit := fs.Int("limit", 15, "Number of results")
+	minScore := fs.Int("min-score", 50, "Minimum confluence score (0-100)")
+	minTurnover := fs.Float64("min-turnover", 1000000, "Min 24h turnover in USDT")
+	fs.Parse(os.Args[2:])
+	return futures.RunScalpScan(cfg, *limit, *minScore, *minTurnover)
 }
 
 func notImplemented(cmd string) error {
