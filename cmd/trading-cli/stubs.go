@@ -11,6 +11,7 @@ import (
 	"github.com/alorse/trading-cli/pkg/tools/backtest"
 	"github.com/alorse/trading-cli/pkg/tools/futures"
 	"github.com/alorse/trading-cli/pkg/tools/mtf"
+	"github.com/alorse/trading-cli/pkg/tools/phemex"
 	"github.com/alorse/trading-cli/pkg/tools/patterns"
 	"github.com/alorse/trading-cli/pkg/tools/plan"
 	"github.com/alorse/trading-cli/pkg/tools/screener"
@@ -371,6 +372,65 @@ func runScalpScan(cfg *config.Config) error {
 	minTurnover := fs.Float64("min-turnover", 1000000, "Min 24h turnover in USDT")
 	fs.Parse(os.Args[2:])
 	return futures.RunScalpScan(cfg, *limit, *minScore, *minTurnover)
+}
+
+func runPhemex(cfg *config.Config, args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf(`usage: trading-cli phemex <subcommand>
+subcommands:
+  account [--currency USDT]
+  positions [--currency USDT]
+  orders --symbol BTCUSDT
+  place-order --symbol BTCUSDT --side Buy --pos-side Long --ord-type Market --qty 0.001 [--price ...] [--sl ...] [--tp ...] [--reduce-only] [--tif GoodTillCancel]
+  cancel --symbol BTCUSDT --order-id <id> --pos-side Long`)
+	}
+	sub := args[0]
+	rest := args[1:]
+	switch sub {
+	case "account":
+		fs := flag.NewFlagSet("phemex account", flag.ContinueOnError)
+		currency := fs.String("currency", "USDT", "Settlement currency")
+		fs.Parse(rest)
+		return phemex.RunAccount(cfg, *currency)
+	case "positions":
+		fs := flag.NewFlagSet("phemex positions", flag.ContinueOnError)
+		currency := fs.String("currency", "USDT", "Settlement currency")
+		fs.Parse(rest)
+		return phemex.RunPositions(cfg, *currency)
+	case "orders":
+		fs := flag.NewFlagSet("phemex orders", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol (e.g. BTCUSDT)")
+		fs.Parse(rest)
+		return phemex.RunActiveOrders(cfg, *symbol)
+	case "place-order":
+		fs := flag.NewFlagSet("phemex place-order", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol e.g. BTCUSDT")
+		side := fs.String("side", "Buy", "Buy or Sell")
+		posSide := fs.String("pos-side", "Long", "Long, Short, or Merged")
+		ordType := fs.String("ord-type", "Market", "Market or Limit")
+		qty := fs.String("qty", "", "Order quantity in base asset (string)")
+		price := fs.String("price", "", "Price for Limit orders")
+		sl := fs.String("sl", "", "Stop loss price")
+		tp := fs.String("tp", "", "Take profit price")
+		tif := fs.String("tif", "", "Time in force (GoodTillCancel default)")
+		reduceOnly := fs.Bool("reduce-only", false, "Reduce-only flag")
+		clOrdID := fs.String("cl-ord-id", "", "Client order ID (optional)")
+		fs.Parse(rest)
+		return phemex.RunPlaceOrder(cfg, phemex.PlaceOrderOpts{
+			Symbol: *symbol, Side: *side, PosSide: *posSide, OrdType: *ordType,
+			OrderQtyRq: *qty, PriceRp: *price, StopLossRp: *sl, TPRp: *tp,
+			TimeInForce: *tif, ReduceOnly: *reduceOnly, ClOrdID: *clOrdID,
+		})
+	case "cancel":
+		fs := flag.NewFlagSet("phemex cancel", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol")
+		orderID := fs.String("order-id", "", "Order ID")
+		posSide := fs.String("pos-side", "Long", "Long/Short/Merged")
+		fs.Parse(rest)
+		return phemex.RunCancelOrder(cfg, *symbol, *orderID, *posSide)
+	default:
+		return fmt.Errorf("unknown phemex subcommand: %s", sub)
+	}
 }
 
 func notImplemented(cmd string) error {
