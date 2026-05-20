@@ -125,19 +125,30 @@ A. MANAGE OPEN POSITIONS
        * MTF strongly BEARISH regardless of PnL          → Close, free margin for better setup
 
 B. EVALUATE NEW ENTRIES
-   Only if open_count < 5 AND used_margin < 500:
-   1. trading-cli scalp-scan --limit 10 --min-score 65 --min-turnover 2000000
-   2. trading-cli funding-rates --mode negative --limit 10 --min-turnover 1000000
+   Only if open_count < 5 AND used_margin < 500.
+   See "Stale-market protocol" below for the adaptive thresholds.
+
+   1. Read MEMORY.md → ## State (consecutive empty hours, regime flag)
+                    → ## Recent rejections (last 3h, with reason)
+   2. If regime flag is active AND still valid → SKIP scanning, only manage positions, log.
+   3. Compute current scan parameters per the protocol (min-score, min-turnover, extra lens).
+   4. trading-cli scalp-scan --limit 10 --min-score <S> --min-turnover <T>
+   5. trading-cli funding-rates --mode negative --limit 10 --min-turnover 1000000
       (cross-check: a symbol in BOTH lists doubles conviction)
-   3. For top 1-3 candidates: multi-timeframe-analysis. Require BUY or lean BUY.
-   4. Choose entry type per setup quality:
+   6. For each candidate, BEFORE deep analysis:
+      - If symbol is in ## Recent rejections (last 3h) with the SAME blocking reason
+        AND its current score did NOT improve by ≥5 points → skip it.
+        Log: "skipped re-analysis of SYM, still blocked by X"
+   7. For remaining candidates, run multi-timeframe-analysis. Require BUY or lean BUY.
+   8. Choose entry type per setup quality:
       - Market:  score ≥75 AND 1h change in 1-3% range AND momentum healthy
       - Limit:   score 65-75 → place below current at 1h EMA20 / BB middle, 4h expiry
-      - SKIP:    anything else; wait next hour
-   5. BEFORE placing the first order on a NEW symbol (one you haven't traded yet
-      in this session), run set-leverage to enforce 5x cross:
+      - SKIP:    anything else; record rejection reason in MEMORY.md ## Recent rejections
+   9. BEFORE placing the first order on a NEW symbol (one without leverageRr=-5
+      in current `phemex positions`), run set-leverage:
         trading-cli phemex set-leverage --symbol <SYM> --leverage 5 --margin cross
-      Skip this step if `phemex positions` already shows leverageRr=-5 for the symbol.
+  10. If a trade was opened: reset ## State counter to 0; clear regime flag if set.
+      If no trade opened: increment ## State counter by 1.
 
 C. HOUSEKEEPING
    Cancel any Limit order older than 6 hours unfilled — setup expired.
@@ -145,6 +156,57 @@ C. HOUSEKEEPING
 D. LOG
    Append rationale to MEMORY.md (see section below). Even "no action; no setup ≥65" is valuable.
 ```
+
+### Stale-market protocol — when nothing qualifies hour after hour
+
+Read `## State` from MEMORY.md at the start of each run. The counter tracks consecutive hours without opening a trade. Adapt scan parameters according to this table:
+
+| Consecutive empty hours | min-score | min-turnover | Extra scan |
+|---|---|---|---|
+| 0 (just acted) — 1 | 65 | 2,000,000 | none |
+| 2 — 3 | **60** | 2,000,000 | none |
+| 4 — 5 | **55** | 2,000,000 | also run `funding-rates --mode negative` as standalone lens |
+| 6 — 7 | **50** (floor) | **500,000** (small caps) | funding lens + flag potential dead regime |
+| ≥ 8 | **50** | 500,000 | set regime flag (see below) |
+
+**Floor is 50. Never lower it.** Better to stay in cash 12 hours than take a 45-score trade.
+
+#### Regime flag (capa 3)
+
+When consecutive empty hours reaches 8, write into MEMORY.md `## State`:
+```
+regimeFlag: dead
+regimeFlagSince: 2026-05-20 23:00 UTC
+regimeFlagReason: 8h consecutive empty + BTC ranging tight + funding broadly neutral
+```
+
+While the flag is set:
+- Skip the scan portion of the hourly run entirely (saves tokens)
+- Still manage open positions (Section A of decision tree)
+- Still cancel stale limit orders (Section C)
+- Re-evaluate the flag once per run via:
+  ```bash
+  trading-cli coin-analysis --symbol BTCUSDT.P --exchange PHEMEX --timeframe 4h
+  ```
+  Clear the flag (and reset counter to 0) if:
+  - BTC 4h breaks out of its prior range (price > prior high or < prior low by >1%), OR
+  - BTC 4h ATR doubles vs the value when flag was set, OR
+  - 6 hours have passed since `regimeFlagSince` (forced re-scan to test conditions)
+
+#### Memory dedup rules (capa 1)
+
+When a candidate is rejected in step 8 of the decision tree, append to `## Recent rejections`:
+```
+- SYMBOL @ YYYY-MM-DD HH:MM UTC — score N — reason: <short text>
+```
+
+Each hour, prune entries older than 3 hours from this list.
+
+When evaluating new candidates next hour, the dedup check is:
+- Same symbol, last 3h: skip deep analysis unless current score improved by ≥5 points
+- Otherwise just log: "skipped re-analysis of SYM (still N, still blocked by X)"
+
+This prevents burning analysis cycles on the same 2-3 obvious-no candidates.
 
 ### Reversal signals (for early close in profit)
 

@@ -1,16 +1,45 @@
 # trading-cli — agent memory
 
 Writable scratchpad for your own use across hourly runs. Edit freely.
-Default sections below are suggestions — adapt, rename, or drop sections as needed. Just don't lose the file.
+Default sections below are suggestions — adapt as needed.
+
+## State
+
+Read this section at the start of every hourly run. Update at the end.
+
+```
+consecutiveEmptyHours: 0
+lastAction: 2026-05-20 19:35 UTC — opened BTCUSDT Long (test trade, leave open)
+regimeFlag: none
+regimeFlagSince: -
+regimeFlagReason: -
+```
+
+Apply scan parameters per `consecutiveEmptyHours` table in SKILL.md "Stale-market protocol".
+Reset `consecutiveEmptyHours` to 0 on any trade opened. Increment by 1 on a run that opens nothing.
+
+## Recent rejections (last 3 hours)
+
+Append when you reject a candidate in step 8 of the decision tree. Prune entries older than 3 hours each run.
+
+Format:
+```
+- SYMBOL @ YYYY-MM-DD HH:MM UTC — score N — reason: <short text>
+```
+
+Next hour, skip deep MTF analysis for a symbol in this list with same reason UNLESS its current score improved by ≥5 points.
+
+(empty)
 
 ## Hourly run log
 
-Append one entry per run. Newest at the top. Trim entries older than 30 days when the file grows past ~200 lines.
+One entry per run. Newest at the top. Trim entries older than 30 days when the file grows past ~200 lines.
 
-Format suggestion:
+Format:
 ```
 ### YYYY-MM-DD HH:MM UTC
 - Balance: <N> USDT | Open: <N>/5 | Used margin: <N>
+- Scan params: min-score <S> min-turnover <T> [extra lens: <X>]
 - Action: <opened X | closed Y | no action because Z>
 - Reasoning: <one or two sentences>
 ```
@@ -19,13 +48,13 @@ Format suggestion:
 
 ## Active trades
 
-Track positions you opened, with the rationale and current status. Move to "Closed trades" on exit.
+Track positions you opened, with rationale and current status. Move to "Closed trades" on exit.
 
-Format suggestion:
+Format:
 ```
 - BTCUSDT Long | orderID <...> | clOrdID <...> | opened YYYY-MM-DD HH:MM
-  entry: 77556.20 | SL: 76000 | TP: 79000
-  reason: scalp-scan score 78 + funding -0.05% + MTF MOSTLY BULLISH
+  entry: <price> | SL: <price> | TP: <price>
+  reason: <why you opened this>
 ```
 
 - BTCUSDT Long | orderID 9a6ebc87-70d4-4e31-bb9d-2a5e586fcab8 | clOrdID picoclaw-test-001
@@ -46,22 +75,12 @@ Record outcomes for pattern analysis. Note what worked vs what didn't.
 
 ## Market regime notes
 
-Higher-level context that affects all decisions this week.
+Higher-level context that affects all decisions this week. Update when regime flag changes or you notice a clear regime shift.
 
 Examples:
 - "BTC ranging $77k-$80k since Monday, no clear breakout yet"
 - "Alts pumping on Asia hours (00:00-04:00 UTC), quiet during US"
 - "Funding broadly negative across majors → bullish bias for longs"
-
-(empty)
-
-## Rejected setups
-
-Symbols you considered but didn't take. Patterns emerge over time.
-
-```
-- YYYY-MM-DD HH:MM SYMBOL — score X, rejected because <reason>
-```
 
 (empty)
 
