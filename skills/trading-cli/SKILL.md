@@ -119,13 +119,147 @@ After placement:
 
 These are non-negotiable. **Refuse to execute orders that violate them.**
 
-1. **Default to testnet.** If `PHEMEX_API_URL` is testnet, proceed freely. If it's prod, REQUIRE explicit user confirmation in the same message before placing any order. Say something like: "This will execute on REAL money. Confirm by repeating the symbol and qty."
-2. **Max risk per trade = 1% of account.** Compute: `(entry - stopLoss) / entry * positionSize <= account * 0.01`. If the requested size exceeds this, reduce it automatically and tell the user.
-3. **Max simultaneous open positions = 3.** Before opening a new one, check `phemex positions` and count where `sizeRq != 0`.
-4. **No SL = no trade.** If the user wants a scalp without a stop loss, refuse and propose a sensible one (entry - 1% for 5x).
-5. **Leverage cap.** Default 5x. Never go above 10x on suggestions, never above 20x even if user insists — explain liquidation math instead.
-6. **Reduce-only on closes.** When closing an existing position with an opposite-side order, ALWAYS pass `--reduce-only` to prevent accidentally flipping the position.
-7. **Symbol must exist.** Before placing, run `trading-cli funding-rates --limit 200` or check `scalp-scan` output to confirm the symbol is a tradable PHEMEX perpetual.
+### Capital and sizing (the master rules)
+
+1. **Operating capital is FIXED at 1000 USDT.** Even if `phemex account` reports more (e.g., 7000+), treat anything beyond 1000 as untouchable reserve. Never deploy more than 1000 USDT of capital across simultaneous trades.
+2. **Leverage is ALWAYS 5x.** No exceptions. Do not raise it for high-conviction setups, do not lower it for caution. Risk is managed via position sizing, not leverage.
+3. **Per-trade margin = 100 USDT (10% of operating capital).** Position notional at 5x = **500 USDT**. Qty in base asset = `500 / entry_price`.
+4. **Max 5 simultaneous open positions.** Total margin in use ≤ 500 USDT (50% of operating capital). The remaining 500 is mandatory buffer against adverse moves and liquidation cushion.
+5. **Dynamic sizing override**: if a setup's SL distance is unusually wide (>10% from entry), reduce notional so the expected loss at SL stays ≤ 50 USDT (5% of operating capital). Compute:
+   - `expected_loss = notional × sl_distance_pct`
+   - If `expected_loss > 50`, set `notional = 50 / sl_distance_pct` (and `qty = notional / entry`).
+   - This rarely triggers for normal scalps (SL 1-3% gives loss 5-15 USDT, well within budget).
+
+### Mandatory pre-trade validation flow
+
+Before placing ANY order, run these checks in order:
+
+```bash
+# 1. Get balance + count open positions
+trading-cli phemex account --currency USDT > /tmp/acct.json
+
+# Parse: total_balance = data.account.accountBalanceRv
+#        used_margin = data.account.totalUsedBalanceRv
+#        open_positions = count of data.positions where sizeRq != "0"
+
+# 2. Enforce the gates
+#    If open_positions >= 5: REFUSE → "Already at max 5 positions, close one first"
+#    If used_margin + 100 > 500: REFUSE → "Would exceed 500 USDT margin cap"
+#    If total_balance < 100: REFUSE → "Insufficient balance for 100 USDT margin"
+
+# 3. Compute qty
+qty = 500 / entry_price   # default 500 USDT notional / current price
+# Apply dynamic sizing override if sl_distance > 10%
+
+# 4. Set leverage explicitly to 5x via the position endpoint if available,
+#    OR pass it inline (PHEMEX cross-margin will use up to its default — verify with `phemex positions` after).
+```
+
+### Other hard rules
+
+6. **Default to testnet.** If `PHEMEX_API_URL` is `testnet-api.phemex.com`, proceed. If it's `api.phemex.com` (prod), REQUIRE explicit user confirmation by name in the same message before any order. Format: "About to execute on REAL money — confirm by repeating symbol and qty."
+7. **No SL = no trade.** Every order must include `--sl`. If the user doesn't specify, derive from the scalp-scan `trade.stopLoss` field (default entry × 0.99 = -1%).
+8. **Reduce-only on closes.** When closing an existing position with an opposite-side order, ALWAYS pass `--reduce-only` to prevent accidentally flipping the position from Long to Short or vice versa.
+9. **Symbol must exist.** Before placing, confirm the symbol is in `scalp-scan` or `funding-rates --limit 200` output (it's a real PHEMEX perpetual).
+10. **Never modify operating capital mid-session.** If the user asks to "use more" or "go bigger", explain the rule and request explicit re-baselining.
+
+### Example sizing computation
+
+User says "open the top scalp-scan candidate":
+```
+scalp-scan returns: symbol=BTCUSDT.P, entry=80000, stopLoss=79200 (-1%)
+sl_distance_pct = (80000 - 79200) / 80000 = 0.01
+expected_loss = 500 * 0.01 = 5 USDT  (within budget)
+qty = 500 / 80000 = 0.00625 BTC
+margin needed = 500 / 5 = 100 USDT
+```
+
+Then: pre-trade check → place at qty=0.00625, sl=79200, tp=takeProfit1 from scan.
+
+If scalp-scan returns SL at -12% (unusual, e.g., wide setup):
+```
+sl_distance_pct = 0.12
+expected_loss at 500 notional = 60 USDT  (exceeds 50 cap)
+→ reduce notional: new_notional = 50 / 0.12 = 416.67
+→ qty = 416.67 / entry
+```
+
+## Acting like a trader — not a robot
+
+You will be invoked roughly hourly to evaluate the market and the portfolio. **Doing nothing is a valid output.** Most hours, the right move is to wait.
+
+### Decision tree per hourly check
+
+```
+1. Read open positions (phemex positions).
+   For each open position:
+     a) Check current unrealized PnL (markPriceRp vs avgEntryPriceRp).
+     b) Re-run multi-timeframe-analysis on its symbol.
+     c) DECIDE:
+        - If position is in PROFIT (PnL > 0) AND MTF turned NEUTRAL/BEARISH
+          OR the 1h candle structure is reversing (e.g. lower high after impulse):
+            → CLOSE NOW with reduce-only order. Don't wait for TP. Lock the profit.
+        - If position is in PROFIT > +1% AND momentum still strong (RSI 60-70 rising,
+          volume holding): trail by tightening SL to entry (move to break-even).
+        - If position is in LOSS but not at SL yet and MTF still bullish:
+          hold. Don't panic-close.
+        - If MTF flipped strongly bearish on a Long position regardless of PnL:
+          consider closing to free margin for a better setup. Take the small loss.
+
+2. Read account state (phemex account → balance, used margin, open count).
+
+3. If open positions < 5 AND used margin < 500:
+   a) Run scalp-scan with min-score 65 (higher bar when account already has positions).
+   b) Cross-check with funding-rates negative mode.
+   c) For each candidate, run multi-timeframe-analysis. Require BUY or BUY-leaning.
+   d) If a clean setup emerges, decide ENTRY TYPE:
+      - Market: only if score >=75 AND 1h change is fresh (1-3%) AND momentum healthy.
+      - Limit (BELOW current price): if score 65-75, place limit at BB middle or 1h EMA20.
+        Set the limit valid for ~4 hours then expire. Don't chase price.
+      - SKIP: anything else. Wait for next hour.
+
+4. Cancel stale limit orders.
+   Run phemex orders --symbol <sym> for each symbol you placed limits on.
+   If any limit is older than 6 hours and unfilled, cancel it (the setup expired).
+
+5. Log decision and rationale. Even "did nothing because no setup ≥65" is valuable info.
+```
+
+### Heuristics for "trend reversal while in profit"
+
+You don't have a magic indicator for "is this reversing right now". Use a layered check:
+
+- **Strong reversal signal (close immediately)**:
+  - Position Long: 1h candle closes below entry's BB middle.
+  - Volume ratio dropping below 0.8 after entry's spike.
+  - RSI(1h) crossed below 50 from above on a Long.
+  - Multi-timeframe-analysis flips to NEUTRAL or BEARISH bias.
+- **Weak reversal signal (tighten SL to break-even)**:
+  - 1h RSI starts diverging from price (price higher, RSI lower).
+  - 1h volume ratio < 1.0 but no candle close yet.
+  - Funding rate flipped from negative to positive while position is open.
+
+### When to use Limit orders instead of Market
+
+Market is "I want in NOW even if I pay spread + slippage." Use Market for:
+- Tier-1 setups (scalp-scan score ≥ 75)
+- Setups with negative funding + fresh momentum
+- When current price is already in the recommended entry zone
+
+Use Limit (with `--ord-type Limit --price <X>`) for:
+- Tier-2 setups (score 60-75) where you want a better entry
+- Symbol where BB position > 0.7 (price near upper band — wait for pullback)
+- Symbol with low 1h volume ratio (let the entry come to you)
+
+For a Long Limit, place the limit at the 1h EMA20 estimate or BB middle of the symbol's 4h chart (use `coin-analysis --timeframe 4h`).
+
+### What NOT to do
+
+- Don't chase a candle that already moved +5% in 1h. Late FOMO entries are scalp killers.
+- Don't open a new position just because there's "available margin." The right answer most hours is "no setup, skip."
+- Don't average down. If a position is at -SL, take the loss and move on.
+- Don't move SL away from price to avoid a loss. Move it CLOSER to lock profits, never further.
+- Don't override the leverage / capital rules even if the user phrases it as "just this once."
 
 ## Reading the output
 
