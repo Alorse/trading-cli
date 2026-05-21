@@ -50,11 +50,15 @@ Format:
 
 Track positions you opened, with rationale and current status. Move to "Closed trades" on exit.
 
-Format:
+Format (include `market: perp|spot` to track which market the trade is on):
 ```
-- BTCUSDT Long | orderID <...> | clOrdID <...> | opened YYYY-MM-DD HH:MM
-  entry: <price> | SL: <price> | TP: <price>
+- BTCUSDT Long | market: perp | orderID <...> | clOrdID <...> | opened YYYY-MM-DD HH:MM
+  entry: <price> | SL: <price> | TP: <price> | sizeUsd: 500
   reason: <why you opened this>
+
+- TIAUSDT Long | market: spot | orderID <...> | opened YYYY-MM-DD HH:MM
+  entry: <price> | SL: <price> | TP: <price> | sizeUsd: 100
+  reason: perp set-leverage failed TE_SYMBOL_NOT_IN_RANGE, fell back to spot
 ```
 
 - BTCUSDT Long | orderID 9a6ebc87-70d4-4e31-bb9d-2a5e586fcab8 | clOrdID picoclaw-test-001
