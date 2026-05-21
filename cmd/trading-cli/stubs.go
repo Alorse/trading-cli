@@ -442,7 +442,7 @@ subcommands:
 		return phemex.RunSetLeverage(cfg, *symbol, *leverage, *margin)
 	case "spot-balance":
 		fs := flag.NewFlagSet("phemex spot-balance", flag.ContinueOnError)
-		currency := fs.String("currency", "USDT", "Currency (USDT, BTC, etc.)")
+		currency := fs.String("currency", "USDT", "Currency (USDT, BTC, etc.) or ALL for every non-empty wallet")
 		fs.Parse(rest)
 		return phemex.RunSpotBalance(cfg, *currency)
 	case "spot-orders":

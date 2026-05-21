@@ -17,14 +17,26 @@ import (
 // numeric fields (multiply real value by 1e8 to produce the integer wire value).
 // Reference: https://github.com/phemex/phemex-api-docs/blob/master/Public-Spot-API-en.md
 
-// toSpotSymbol ensures the 's' prefix on a spot symbol.
-// "BTCUSDT" -> "sBTCUSDT". "sBTCUSDT" -> "sBTCUSDT" (idempotent).
+// toSpotSymbol ensures the lowercase 's' prefix on a spot symbol and
+// uppercases the rest. PHEMEX's canonical spot symbol form is a lowercase
+// 's' followed by the uppercase ticker, e.g. "sBTCUSDT".
+//
+// Only a lowercase leading 's' counts as the prefix. An uppercase 'S' is
+// treated as the first letter of the coin (e.g. SOLUSDT, SUSHIUSDT) so we
+// don't accidentally strip it and ship a different symbol to PHEMEX.
+//
+// Examples:
+//
+//	"BTCUSDT"  -> "sBTCUSDT"
+//	"btcusdt"  -> "sBTCUSDT"
+//	"SOLUSDT"  -> "sSOLUSDT"   (not "sOLUSDT")
+//	"sBTCUSDT" -> "sBTCUSDT"   (idempotent)
 func toSpotSymbol(s string) string {
 	s = strings.TrimSpace(s)
-	if strings.HasPrefix(s, "s") || strings.HasPrefix(s, "S") {
-		return "s" + strings.TrimPrefix(strings.TrimPrefix(s, "s"), "S")
+	if strings.HasPrefix(s, "s") {
+		return "s" + strings.ToUpper(s[1:])
 	}
-	return "s" + s
+	return "s" + strings.ToUpper(s)
 }
 
 // scaleEv converts a real decimal value to a PHEMEX spot Ev/Ep wire string
@@ -46,11 +58,11 @@ func RunSpotBalance(cfg *config.Config, currency string) error {
 	}
 	c, cancel := ctx()
 	defer cancel()
-	if currency == "" {
-		currency = "USDT"
+	params := map[string]string{}
+	if currency != "" && !strings.EqualFold(currency, "ALL") {
+		params["currency"] = strings.ToUpper(currency)
 	}
-	body, err := pc.Do(c, "GET", "/spot/wallets",
-		map[string]string{"currency": strings.ToUpper(currency)}, nil)
+	body, err := pc.Do(c, "GET", "/spot/wallets", params, nil)
 	if err != nil {
 		fmt.Fprintf(printToStderr(), "%s\n", string(body))
 		return err
@@ -73,7 +85,7 @@ func RunSpotOrders(cfg *config.Config, symbol string) error {
 	c, cancel := ctx()
 	defer cancel()
 	body, err := pc.Do(c, "GET", "/spot/orders",
-		map[string]string{"symbol": toSpotSymbol(strings.ToUpper(symbol))}, nil)
+		map[string]string{"symbol": toSpotSymbol(symbol)}, nil)
 	if err != nil {
 		// PHEMEX returns code 10002 OM_ORDER_NOT_FOUND when zero active orders.
 		// Translate to empty list for ergonomic scripting.
@@ -124,7 +136,7 @@ func RunSpotPlace(cfg *config.Config, o SpotPlaceOpts) error {
 		return err
 	}
 
-	apiSymbol := toSpotSymbol(strings.ToUpper(o.Symbol))
+	apiSymbol := toSpotSymbol(o.Symbol)
 
 	// Build main order query
 	q := map[string]string{
@@ -255,7 +267,7 @@ func RunSpotCancel(cfg *config.Config, symbol, orderID string) error {
 	c, cancel := ctx()
 	defer cancel()
 	body, err := pc.Do(c, "DELETE", "/spot/orders", map[string]string{
-		"symbol":  toSpotSymbol(strings.ToUpper(symbol)),
+		"symbol":  toSpotSymbol(symbol),
 		"orderID": orderID,
 	}, nil)
 	if err != nil {
