@@ -383,7 +383,11 @@ subcommands:
   orders --symbol BTCUSDT
   place-order --symbol BTCUSDT --side Buy --pos-side Long --ord-type Market --qty 0.001 [--price ...] [--sl ...] [--tp ...] [--reduce-only] [--tif GoodTillCancel]
   cancel --symbol BTCUSDT --order-id <id> --pos-side Long
-  set-leverage --symbol BTCUSDT --leverage 5 [--margin cross|isolated]`)
+  set-leverage --symbol BTCUSDT --leverage 5 [--margin cross|isolated]
+  spot-balance [--currency USDT]
+  spot-orders --symbol BTCUSDT
+  spot-place --symbol BTCUSDT --side Buy --ord-type Market --quote-qty 100 [--base-qty ...] [--price ...] [--sl ...] [--tp ...] [--cl-ord-id ID]
+  spot-cancel --symbol BTCUSDT --order-id <id>`)
 	}
 	sub := args[0]
 	rest := args[1:]
@@ -436,6 +440,40 @@ subcommands:
 		margin := fs.String("margin", "cross", "cross or isolated")
 		fs.Parse(rest)
 		return phemex.RunSetLeverage(cfg, *symbol, *leverage, *margin)
+	case "spot-balance":
+		fs := flag.NewFlagSet("phemex spot-balance", flag.ContinueOnError)
+		currency := fs.String("currency", "USDT", "Currency (USDT, BTC, etc.)")
+		fs.Parse(rest)
+		return phemex.RunSpotBalance(cfg, *currency)
+	case "spot-orders":
+		fs := flag.NewFlagSet("phemex spot-orders", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol without 's' prefix (e.g. BTCUSDT)")
+		fs.Parse(rest)
+		return phemex.RunSpotOrders(cfg, *symbol)
+	case "spot-place":
+		fs := flag.NewFlagSet("phemex spot-place", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol without 's' prefix (e.g. BTCUSDT)")
+		side := fs.String("side", "Buy", "Buy or Sell")
+		ordType := fs.String("ord-type", "Market", "Market or Limit")
+		quoteQty := fs.Float64("quote-qty", 0, "USDT amount (preferred for Buy)")
+		baseQty := fs.Float64("base-qty", 0, "Base asset units (preferred for Sell)")
+		price := fs.Float64("price", 0, "Price for Limit orders")
+		sl := fs.Float64("sl", 0, "Stop loss price (auto-places Stop Sell)")
+		tp := fs.Float64("tp", 0, "Take profit price (auto-places Limit Sell)")
+		tif := fs.String("tif", "", "Time in force (GoodTillCancel default)")
+		clOrdID := fs.String("cl-ord-id", "", "Client order ID")
+		fs.Parse(rest)
+		return phemex.RunSpotPlace(cfg, phemex.SpotPlaceOpts{
+			Symbol: *symbol, Side: *side, OrdType: *ordType,
+			QuoteQty: *quoteQty, BaseQty: *baseQty, Price: *price,
+			SL: *sl, TP: *tp, TimeInForce: *tif, ClOrdID: *clOrdID,
+		})
+	case "spot-cancel":
+		fs := flag.NewFlagSet("phemex spot-cancel", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol without 's' prefix")
+		orderID := fs.String("order-id", "", "Order ID")
+		fs.Parse(rest)
+		return phemex.RunSpotCancel(cfg, *symbol, *orderID)
 	default:
 		return fmt.Errorf("unknown phemex subcommand: %s", sub)
 	}
