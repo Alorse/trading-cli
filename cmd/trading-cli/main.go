@@ -69,6 +69,18 @@ func main() {
 		err = runFibonacci(cfg)
 	case "list-exchanges":
 		err = runListExchanges()
+	case "funding-rates":
+		err = runFundingRates(cfg)
+	case "open-interest":
+		err = runOpenInterest(cfg)
+	case "scalp-scan":
+		err = runScalpScan(cfg)
+	case "phemex":
+		if err := runPhemex(cfg, os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+		return
 	case "mcp":
 		if len(os.Args) >= 3 && os.Args[2] == "install" {
 			if err := runMCPInstall(os.Args[3:]); err != nil {
@@ -138,6 +150,18 @@ Commands:
   Trade Planning:
     trade-plan               Generate a complete trade plan
     fibonacci-retracement    Fibonacci analysis
+
+  Futures (PHEMEX):
+    funding-rates            Live funding rates sorted by extreme
+    open-interest            Top contracts by open interest (USD)
+    scalp-scan               High-confluence scalp candidates (TV + PHEMEX)
+
+  PHEMEX trading (auth required, .env file):
+    phemex account           Account balance + positions
+    phemex positions         Open positions
+    phemex orders            Active orders for a symbol
+    phemex place-order       Place market or limit order
+    phemex cancel            Cancel an order
 
   System:
     list-exchanges           List available exchanges

@@ -15,6 +15,7 @@ type Trade struct {
 	ExitPrice  float64 `json:"exitPrice"`
 	ReturnPct  float64 `json:"returnPct"`
 	IsWin      bool    `json:"isWin"`
+	ExitReason string  `json:"exitReason,omitempty"` // "stop", "target", "signal", "end"
 }
 
 // BacktestResult holds comprehensive backtest metrics and results.
@@ -47,6 +48,14 @@ type Strategy interface {
 	GenerateSignals(candles []client.YahooOHLCV) []int // +1 buy, -1 sell, 0 hold
 }
 
+// StrategyWithStops is an optional interface a Strategy may implement
+// to provide ATR-based stop loss and take profit levels at entry time.
+// If sl or tp is 0, the engine treats that level as disabled.
+type StrategyWithStops interface {
+	Strategy
+	EntryStops(candles []client.YahooOHLCV, entryIdx int) (sl float64, tp float64)
+}
+
 // RunBacktest executes a backtest strategy on OHLCV candles.
 // Commission and slippage are percentages (e.g. 0.1 = 0.1%).
 // Cost per trade = (commissionPct + slippagePct) / 100 * 2
@@ -73,6 +82,9 @@ func RunBacktest(symbol, strategyName string, candles []client.YahooOHLCV, strat
 	// Calculate transaction cost
 	costPerTrade := (commissionPct + slippagePct) / 100 * 2
 
+	// Check if strategy provides SL/TP via the optional interface.
+	stopsProvider, hasStops := strategy.(StrategyWithStops)
+
 	// Execute trades
 	capital := initialCapital
 	equityCurve := []float64{capital}
@@ -80,53 +92,11 @@ func RunBacktest(symbol, strategyName string, candles []client.YahooOHLCV, strat
 	var inPosition bool
 	var entryPrice float64
 	var entryIndex int
+	var currentSL, currentTP float64
 	var dailyReturns []float64
 
-	for i := 0; i < len(candles); i++ {
-		signal := signals[i]
-		closePrice := candles[i].Close
-
-		// BUY signal
-		if signal == 1 && !inPosition {
-			inPosition = true
-			entryPrice = closePrice
-			entryIndex = i
-		}
-
-		// SELL signal
-		if signal == -1 && inPosition {
-			inPosition = false
-			exitPrice := closePrice
-
-			// Calculate return with transaction costs
-			returnBeforeCost := (exitPrice - entryPrice) / entryPrice
-			transactionCost := costPerTrade
-			returnAfterCost := returnBeforeCost - transactionCost
-
-			returnPct := returnAfterCost * 100
-			tradeGain := capital * returnAfterCost
-			capital += tradeGain
-
-			// Record trade
-			trade := Trade{
-				EntryIndex: entryIndex,
-				ExitIndex:  i,
-				EntryPrice: entryPrice,
-				ExitPrice:  exitPrice,
-				ReturnPct:  returnPct,
-				IsWin:      returnPct > 0,
-			}
-			trades = append(trades, trade)
-			dailyReturns = append(dailyReturns, returnAfterCost)
-
-			// Update equity curve
-			equityCurve = append(equityCurve, capital)
-		}
-	}
-
-	// Close any open position at last candle
-	if inPosition {
-		exitPrice := candles[len(candles)-1].Close
+	closeTrade := func(exitIdx int, exitPrice float64, reason string) {
+		inPosition = false
 		returnBeforeCost := (exitPrice - entryPrice) / entryPrice
 		transactionCost := costPerTrade
 		returnAfterCost := returnBeforeCost - transactionCost
@@ -135,18 +105,66 @@ func RunBacktest(symbol, strategyName string, candles []client.YahooOHLCV, strat
 		tradeGain := capital * returnAfterCost
 		capital += tradeGain
 
-		trade := Trade{
+		trades = append(trades, Trade{
 			EntryIndex: entryIndex,
-			ExitIndex:  len(candles) - 1,
+			ExitIndex:  exitIdx,
 			EntryPrice: entryPrice,
 			ExitPrice:  exitPrice,
 			ReturnPct:  returnPct,
 			IsWin:      returnPct > 0,
-		}
-		trades = append(trades, trade)
+			ExitReason: reason,
+		})
 		dailyReturns = append(dailyReturns, returnAfterCost)
-
 		equityCurve = append(equityCurve, capital)
+
+		currentSL = 0
+		currentTP = 0
+	}
+
+	for i := 0; i < len(candles); i++ {
+		signal := signals[i]
+		closePrice := candles[i].Close
+
+		// If in position, check SL/TP intrabar first (skip on the very entry bar).
+		if inPosition && i > entryIndex {
+			high := candles[i].High
+			low := candles[i].Low
+
+			// Stop loss has priority over take profit if both touched in same bar (conservative).
+			if currentSL > 0 && low <= currentSL {
+				closeTrade(i, currentSL, "stop")
+			} else if currentTP > 0 && high >= currentTP {
+				closeTrade(i, currentTP, "target")
+			}
+		}
+
+		// SELL signal (only if still in position after SL/TP check).
+		if signal == -1 && inPosition {
+			closeTrade(i, closePrice, "signal")
+		}
+
+		// BUY signal
+		if signal == 1 && !inPosition {
+			inPosition = true
+			entryPrice = closePrice
+			entryIndex = i
+			currentSL = 0
+			currentTP = 0
+			if hasStops {
+				sl, tp := stopsProvider.EntryStops(candles, i)
+				if sl > 0 && sl < entryPrice {
+					currentSL = sl
+				}
+				if tp > 0 && tp > entryPrice {
+					currentTP = tp
+				}
+			}
+		}
+	}
+
+	// Close any open position at last candle
+	if inPosition {
+		closeTrade(len(candles)-1, candles[len(candles)-1].Close, "end")
 	}
 
 	result.FinalCapital = capital

@@ -103,7 +103,8 @@ Flags:
 
 Flags:
   --symbol string         Yahoo Finance ticker (required)
-  --strategy string       rsi, bollinger, macd, ema-cross, supertrend, donchian (required)
+  --strategy string       rsi, bollinger, macd, ema-cross, supertrend, donchian,
+                          stochrsi-supertrend, dmi-adx-trend, ttm-squeeze (required)
   --period string         1mo, 3mo, 6mo, 1y, 2y (default: 1y)
   --initial-capital float Starting capital (default: 10000)
   --commission-pct float  Commission %% (default: 0.1)

@@ -9,8 +9,10 @@ import (
 	"github.com/alorse/trading-cli/internal/config"
 	"github.com/alorse/trading-cli/pkg/tools/analysis"
 	"github.com/alorse/trading-cli/pkg/tools/backtest"
+	"github.com/alorse/trading-cli/pkg/tools/futures"
 	"github.com/alorse/trading-cli/pkg/tools/mtf"
 	"github.com/alorse/trading-cli/pkg/tools/patterns"
+	"github.com/alorse/trading-cli/pkg/tools/phemex"
 	"github.com/alorse/trading-cli/pkg/tools/plan"
 	"github.com/alorse/trading-cli/pkg/tools/screener"
 	"github.com/alorse/trading-cli/pkg/tools/sentiment"
@@ -344,6 +346,137 @@ func runFibonacci(cfg *config.Config) error {
 	}
 
 	return plan.RunFibonacci(cfg, *symbol, *exchange, *lookback, *timeframe)
+}
+
+func runFundingRates(cfg *config.Config) error {
+	fs := flag.NewFlagSet("funding-rates", flag.ContinueOnError)
+	mode := fs.String("mode", "extreme", "extreme | positive | negative (extreme = abs sort)")
+	limit := fs.Int("limit", 25, "Number of results (1-100)")
+	minTurnover := fs.Float64("min-turnover", 1000000, "Min 24h turnover in USDT")
+	fs.Parse(os.Args[2:])
+	return futures.RunFundingRates(cfg, *mode, *limit, *minTurnover)
+}
+
+func runOpenInterest(cfg *config.Config) error {
+	fs := flag.NewFlagSet("open-interest", flag.ContinueOnError)
+	limit := fs.Int("limit", 25, "Number of results (1-100)")
+	minTurnover := fs.Float64("min-turnover", 1000000, "Min 24h turnover in USDT")
+	fs.Parse(os.Args[2:])
+	return futures.RunOpenInterest(cfg, *limit, *minTurnover)
+}
+
+func runScalpScan(cfg *config.Config) error {
+	fs := flag.NewFlagSet("scalp-scan", flag.ContinueOnError)
+	limit := fs.Int("limit", 15, "Number of results")
+	minScore := fs.Int("min-score", 50, "Minimum confluence score (0-100)")
+	minTurnover := fs.Float64("min-turnover", 1000000, "Min 24h turnover in USDT")
+	fs.Parse(os.Args[2:])
+	return futures.RunScalpScan(cfg, *limit, *minScore, *minTurnover)
+}
+
+func runPhemex(cfg *config.Config, args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf(`usage: trading-cli phemex <subcommand>
+subcommands:
+  account [--currency USDT]
+  positions [--currency USDT]
+  orders --symbol BTCUSDT
+  place-order --symbol BTCUSDT --side Buy --pos-side Long --ord-type Market --qty 0.001 [--price ...] [--sl ...] [--tp ...] [--reduce-only] [--tif GoodTillCancel]
+  cancel --symbol BTCUSDT --order-id <id> --pos-side Long
+  set-leverage --symbol BTCUSDT --leverage 5 [--margin cross|isolated]
+  spot-balance [--currency USDT]
+  spot-orders --symbol BTCUSDT
+  spot-place --symbol BTCUSDT --side Buy --ord-type Market --quote-qty 100 [--base-qty ...] [--price ...] [--sl ...] [--tp ...] [--cl-ord-id ID]
+  spot-cancel --symbol BTCUSDT --order-id <id>`)
+	}
+	sub := args[0]
+	rest := args[1:]
+	switch sub {
+	case "account":
+		fs := flag.NewFlagSet("phemex account", flag.ContinueOnError)
+		currency := fs.String("currency", "USDT", "Settlement currency")
+		fs.Parse(rest)
+		return phemex.RunAccount(cfg, *currency)
+	case "positions":
+		fs := flag.NewFlagSet("phemex positions", flag.ContinueOnError)
+		currency := fs.String("currency", "USDT", "Settlement currency")
+		fs.Parse(rest)
+		return phemex.RunPositions(cfg, *currency)
+	case "orders":
+		fs := flag.NewFlagSet("phemex orders", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol (e.g. BTCUSDT)")
+		fs.Parse(rest)
+		return phemex.RunActiveOrders(cfg, *symbol)
+	case "place-order":
+		fs := flag.NewFlagSet("phemex place-order", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol e.g. BTCUSDT")
+		side := fs.String("side", "Buy", "Buy or Sell")
+		posSide := fs.String("pos-side", "Long", "Long, Short, or Merged")
+		ordType := fs.String("ord-type", "Market", "Market or Limit")
+		qty := fs.String("qty", "", "Order quantity in base asset (string)")
+		price := fs.String("price", "", "Price for Limit orders")
+		sl := fs.String("sl", "", "Stop loss price")
+		tp := fs.String("tp", "", "Take profit price")
+		tif := fs.String("tif", "", "Time in force (GoodTillCancel default)")
+		reduceOnly := fs.Bool("reduce-only", false, "Reduce-only flag")
+		clOrdID := fs.String("cl-ord-id", "", "Client order ID (optional)")
+		fs.Parse(rest)
+		return phemex.RunPlaceOrder(cfg, phemex.PlaceOrderOpts{
+			Symbol: *symbol, Side: *side, PosSide: *posSide, OrdType: *ordType,
+			OrderQtyRq: *qty, PriceRp: *price, StopLossRp: *sl, TPRp: *tp,
+			TimeInForce: *tif, ReduceOnly: *reduceOnly, ClOrdID: *clOrdID,
+		})
+	case "cancel":
+		fs := flag.NewFlagSet("phemex cancel", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol")
+		orderID := fs.String("order-id", "", "Order ID")
+		posSide := fs.String("pos-side", "Long", "Long/Short/Merged")
+		fs.Parse(rest)
+		return phemex.RunCancelOrder(cfg, *symbol, *orderID, *posSide)
+	case "set-leverage":
+		fs := flag.NewFlagSet("phemex set-leverage", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol")
+		leverage := fs.Int("leverage", 5, "Leverage 1-100")
+		margin := fs.String("margin", "cross", "cross or isolated")
+		fs.Parse(rest)
+		return phemex.RunSetLeverage(cfg, *symbol, *leverage, *margin)
+	case "spot-balance":
+		fs := flag.NewFlagSet("phemex spot-balance", flag.ContinueOnError)
+		currency := fs.String("currency", "USDT", "Currency (USDT, BTC, etc.) or ALL for every non-empty wallet")
+		fs.Parse(rest)
+		return phemex.RunSpotBalance(cfg, *currency)
+	case "spot-orders":
+		fs := flag.NewFlagSet("phemex spot-orders", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol without 's' prefix (e.g. BTCUSDT)")
+		fs.Parse(rest)
+		return phemex.RunSpotOrders(cfg, *symbol)
+	case "spot-place":
+		fs := flag.NewFlagSet("phemex spot-place", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol without 's' prefix (e.g. BTCUSDT)")
+		side := fs.String("side", "Buy", "Buy or Sell")
+		ordType := fs.String("ord-type", "Market", "Market or Limit")
+		quoteQty := fs.Float64("quote-qty", 0, "USDT amount (preferred for Buy)")
+		baseQty := fs.Float64("base-qty", 0, "Base asset units (preferred for Sell)")
+		price := fs.Float64("price", 0, "Price for Limit orders")
+		sl := fs.Float64("sl", 0, "Stop loss price (auto-places Stop Sell)")
+		tp := fs.Float64("tp", 0, "Take profit price (auto-places Limit Sell)")
+		tif := fs.String("tif", "", "Time in force (GoodTillCancel default)")
+		clOrdID := fs.String("cl-ord-id", "", "Client order ID")
+		fs.Parse(rest)
+		return phemex.RunSpotPlace(cfg, phemex.SpotPlaceOpts{
+			Symbol: *symbol, Side: *side, OrdType: *ordType,
+			QuoteQty: *quoteQty, BaseQty: *baseQty, Price: *price,
+			SL: *sl, TP: *tp, TimeInForce: *tif, ClOrdID: *clOrdID,
+		})
+	case "spot-cancel":
+		fs := flag.NewFlagSet("phemex spot-cancel", flag.ContinueOnError)
+		symbol := fs.String("symbol", "", "Symbol without 's' prefix")
+		orderID := fs.String("order-id", "", "Order ID")
+		fs.Parse(rest)
+		return phemex.RunSpotCancel(cfg, *symbol, *orderID)
+	default:
+		return fmt.Errorf("unknown phemex subcommand: %s", sub)
+	}
 }
 
 func notImplemented(cmd string) error {

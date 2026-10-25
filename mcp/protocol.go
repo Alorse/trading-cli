@@ -19,10 +19,10 @@ type Request struct {
 
 // Response is a JSON-RPC 2.0 response (success or error).
 type Response struct {
-	JSONRPC string  `json:"jsonrpc"`
-	ID      any     `json:"id,omitempty"`
-	Result  any     `json:"result,omitempty"`
-	Error   *Error  `json:"error,omitempty"`
+	JSONRPC string `json:"jsonrpc"`
+	ID      any    `json:"id,omitempty"`
+	Result  any    `json:"result,omitempty"`
+	Error   *Error `json:"error,omitempty"`
 }
 
 // Error represents a JSON-RPC 2.0 error object.
@@ -123,17 +123,17 @@ type ToolsListResult struct {
 
 // ToolDef describes a tool exposed by the server.
 type ToolDef struct {
-	Name        string          `json:"name"`
-	Description string          `json:"description,omitempty"`
-	InputSchema InputSchema     `json:"inputSchema"`
+	Name        string           `json:"name"`
+	Description string           `json:"description,omitempty"`
+	InputSchema InputSchema      `json:"inputSchema"`
 	Annotations *ToolAnnotations `json:"annotations,omitempty"`
 }
 
 // InputSchema is a JSON Schema object describing tool parameters.
 type InputSchema struct {
-	Type       string            `json:"type"`
+	Type       string              `json:"type"`
 	Properties map[string]Property `json:"properties,omitempty"`
-	Required   []string          `json:"required,omitempty"`
+	Required   []string            `json:"required,omitempty"`
 }
 
 // Property describes a single property in a tool's input schema.

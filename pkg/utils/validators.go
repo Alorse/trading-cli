@@ -17,6 +17,8 @@ var validPeriods = map[string]bool{
 var validStrategies = map[string]bool{
 	"rsi": true, "bollinger": true, "macd": true,
 	"ema-cross": true, "supertrend": true, "donchian": true,
+	"stochrsi-supertrend": true, "dmi-adx-trend": true, "ttm-squeeze": true,
+	"wvf": true, "range-filter": true,
 }
 
 var validIntervals = map[string]bool{

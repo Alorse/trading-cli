@@ -267,6 +267,485 @@ func (s *DonchianStrategy) GenerateSignals(candles []client.YahooOHLCV) []int {
 	return signals
 }
 
+// --- StochRSI + Supertrend + EMA200 strategy ---
+// Long-only. Enters on StochRSI oversold cross-up while above EMA200 and Supertrend bullish.
+// Provides ATR-based SL/TP via StrategyWithStops.
+type StochRSISupertrendStrategy struct{}
+
+func (s *StochRSISupertrendStrategy) Name() string { return "stochrsi-supertrend" }
+
+func (s *StochRSISupertrendStrategy) GenerateSignals(candles []client.YahooOHLCV) []int {
+	n := len(candles)
+	if n == 0 {
+		return []int{}
+	}
+	closes := make([]float64, n)
+	highs := make([]float64, n)
+	lows := make([]float64, n)
+	for i, c := range candles {
+		closes[i] = c.Close
+		highs[i] = c.High
+		lows[i] = c.Low
+	}
+
+	ema200 := indicators.EMA(closes, 200)
+	st := indicators.Supertrend(highs, lows, closes, 11, 2.0)
+	srsi := indicators.StochRSI(closes, 14, 14, 3, 3)
+
+	signals := make([]int, n)
+	inPos := false
+	for i := 1; i < n; i++ {
+		if ema200[i] == 0 || srsi.K[i] == 0 && srsi.D[i] == 0 {
+			continue
+		}
+		if !inPos {
+			trendOK := closes[i] > ema200[i]
+			supertrendOK := st.Direction[i] == 1
+			crossUp := srsi.K[i-1] <= srsi.D[i-1] && srsi.K[i] > srsi.D[i]
+			oversold := srsi.K[i] < 30
+			if trendOK && supertrendOK && crossUp && oversold {
+				signals[i] = 1
+				inPos = true
+			}
+		} else {
+			// Exit when Supertrend flips bearish (dynamic trailing stop)
+			// or when StochRSI hits extreme overbought zone.
+			supertrendFlip := st.Direction[i] == -1
+			extremeOB := srsi.K[i] > 80 && srsi.K[i-1] >= srsi.D[i-1] && srsi.K[i] < srsi.D[i]
+			if supertrendFlip || extremeOB {
+				signals[i] = -1
+				inPos = false
+			}
+		}
+	}
+	return signals
+}
+
+func (s *StochRSISupertrendStrategy) EntryStops(candles []client.YahooOHLCV, entryIdx int) (float64, float64) {
+	highs := make([]float64, len(candles))
+	lows := make([]float64, len(candles))
+	closes := make([]float64, len(candles))
+	for i, c := range candles {
+		highs[i] = c.High
+		lows[i] = c.Low
+		closes[i] = c.Close
+	}
+	atr := indicators.ATR(highs, lows, closes, 14)
+	if entryIdx >= len(atr) || atr[entryIdx] == 0 {
+		return 0, 0
+	}
+	entry := candles[entryIdx].Close
+	// Wider hard SL (catastrophic), wider TP (let runners). Supertrend flip handles primary exit.
+	return entry - 3.0*atr[entryIdx], entry + 6.0*atr[entryIdx]
+}
+
+// --- DMI + ADX>23 + EMA55 strategy ---
+type DMIADXTrendStrategy struct{}
+
+func (s *DMIADXTrendStrategy) Name() string { return "dmi-adx-trend" }
+
+func (s *DMIADXTrendStrategy) GenerateSignals(candles []client.YahooOHLCV) []int {
+	n := len(candles)
+	if n == 0 {
+		return []int{}
+	}
+	closes := make([]float64, n)
+	highs := make([]float64, n)
+	lows := make([]float64, n)
+	opens := make([]float64, n)
+	for i, c := range candles {
+		closes[i] = c.Close
+		highs[i] = c.High
+		lows[i] = c.Low
+		opens[i] = c.Open
+	}
+
+	ema55 := indicators.EMA(closes, 55)
+	dmi := indicators.ADX(highs, lows, closes, 14)
+
+	signals := make([]int, n)
+	inPos := false
+	for i := 3; i < n; i++ {
+		if ema55[i] == 0 || dmi.ADX[i] == 0 {
+			continue
+		}
+		if !inPos {
+			diDom := dmi.PlusDI[i] > dmi.MinusDI[i] &&
+				dmi.PlusDI[i-1] > dmi.MinusDI[i-1] &&
+				dmi.PlusDI[i-2] > dmi.MinusDI[i-2]
+			adxOK := dmi.ADX[i] > 23
+			trendOK := closes[i] > ema55[i]
+			bullCandle := closes[i] > opens[i]
+			if diDom && adxOK && trendOK && bullCandle {
+				signals[i] = 1
+				inPos = true
+			}
+		} else {
+			if dmi.PlusDI[i] < dmi.MinusDI[i] {
+				signals[i] = -1
+				inPos = false
+			}
+		}
+	}
+	return signals
+}
+
+func (s *DMIADXTrendStrategy) EntryStops(candles []client.YahooOHLCV, entryIdx int) (float64, float64) {
+	highs := make([]float64, len(candles))
+	lows := make([]float64, len(candles))
+	closes := make([]float64, len(candles))
+	for i, c := range candles {
+		highs[i] = c.High
+		lows[i] = c.Low
+		closes[i] = c.Close
+	}
+	atr := indicators.ATR(highs, lows, closes, 14)
+	if entryIdx >= len(atr) || atr[entryIdx] == 0 {
+		return 0, 0
+	}
+	entry := candles[entryIdx].Close
+	return entry - 1.5*atr[entryIdx], entry + 3.0*atr[entryIdx]
+}
+
+// --- TTM Squeeze + linreg momentum strategy ---
+type TTMSqueezeStrategy struct{}
+
+func (s *TTMSqueezeStrategy) Name() string { return "ttm-squeeze" }
+
+// linreg computes a simple linear regression value at index i over the last `length` values.
+// Returns the regression line's last point (equivalent to TradingView's linreg(source, length, 0)).
+func linregAt(values []float64, i, length int) float64 {
+	if i < length-1 {
+		return 0
+	}
+	var sumX, sumY, sumXY, sumX2 float64
+	n := float64(length)
+	for k := 0; k < length; k++ {
+		x := float64(k)
+		y := values[i-length+1+k]
+		sumX += x
+		sumY += y
+		sumXY += x * y
+		sumX2 += x * x
+	}
+	denom := n*sumX2 - sumX*sumX
+	if denom == 0 {
+		return 0
+	}
+	slope := (n*sumXY - sumX*sumY) / denom
+	intercept := (sumY - slope*sumX) / n
+	return intercept + slope*(n-1) // value at last x = length-1
+}
+
+func (s *TTMSqueezeStrategy) GenerateSignals(candles []client.YahooOHLCV) []int {
+	n := len(candles)
+	if n == 0 {
+		return []int{}
+	}
+	closes := make([]float64, n)
+	highs := make([]float64, n)
+	lows := make([]float64, n)
+	for i, c := range candles {
+		closes[i] = c.Close
+		highs[i] = c.High
+		lows[i] = c.Low
+	}
+
+	const length = 20
+	bb := indicators.BollingerBands(closes, length, 2.0)
+	kc := indicators.KeltnerChannel(highs, lows, closes, length, 1.5)
+
+	// TTM momentum oscillator: linreg of (close - average(highest, lowest, sma) of length) over length.
+	// Source per Carter: val = close - avg( avg(highest(high,length), lowest(low,length)), sma(close,length) )
+	src := make([]float64, n)
+	sma := indicators.SMA(closes, length)
+	for i := length - 1; i < n; i++ {
+		hh := highs[i]
+		ll := lows[i]
+		for k := i - length + 1; k <= i; k++ {
+			if highs[k] > hh {
+				hh = highs[k]
+			}
+			if lows[k] < ll {
+				ll = lows[k]
+			}
+		}
+		mid := (hh + ll) / 2.0
+		avg := (mid + sma[i]) / 2.0
+		src[i] = closes[i] - avg
+	}
+	osc := make([]float64, n)
+	for i := length - 1; i < n; i++ {
+		osc[i] = linregAt(src, i, length)
+	}
+
+	signals := make([]int, n)
+	inPos := false
+	for i := length + 1; i < n; i++ {
+		if bb.Middle[i] == 0 || kc.Middle[i] == 0 {
+			continue
+		}
+		squeezePrev := bb.Upper[i-1] < kc.Upper[i-1] && bb.Lower[i-1] > kc.Lower[i-1]
+		squeezeNow := bb.Upper[i] < kc.Upper[i] && bb.Lower[i] > kc.Lower[i]
+		release := squeezePrev && !squeezeNow
+
+		if !inPos {
+			if release && osc[i] > 0 && osc[i] > osc[i-1] {
+				signals[i] = 1
+				inPos = true
+			}
+		} else {
+			// Exit when momentum crosses below zero or starts falling sharply
+			if osc[i] < 0 || (osc[i] < osc[i-1] && osc[i-1] < osc[i-2]) {
+				signals[i] = -1
+				inPos = false
+			}
+		}
+	}
+	return signals
+}
+
+func (s *TTMSqueezeStrategy) EntryStops(candles []client.YahooOHLCV, entryIdx int) (float64, float64) {
+	highs := make([]float64, len(candles))
+	lows := make([]float64, len(candles))
+	closes := make([]float64, len(candles))
+	for i, c := range candles {
+		highs[i] = c.High
+		lows[i] = c.Low
+		closes[i] = c.Close
+	}
+	atr := indicators.ATR(highs, lows, closes, 14)
+	if entryIdx >= len(atr) || atr[entryIdx] == 0 {
+		return 0, 0
+	}
+	entry := candles[entryIdx].Close
+	return entry - 2.0*atr[entryIdx], entry + 4.0*atr[entryIdx]
+}
+
+// --- Williams Vix Fix strategy ---
+// Buy on capitulation: WVF crosses above its own BB upper or 85th percentile of prior 50 bars,
+// while price is below BB(close, 20, 2.0) lower (deeply oversold).
+// Exit on Supertrend flip down or BB upper touch.
+type WilliamsVixFixStrategy struct{}
+
+func (s *WilliamsVixFixStrategy) Name() string { return "wvf" }
+
+func (s *WilliamsVixFixStrategy) GenerateSignals(candles []client.YahooOHLCV) []int {
+	n := len(candles)
+	if n == 0 {
+		return []int{}
+	}
+	closes := make([]float64, n)
+	highs := make([]float64, n)
+	lows := make([]float64, n)
+	for i, c := range candles {
+		closes[i] = c.Close
+		highs[i] = c.High
+		lows[i] = c.Low
+	}
+
+	const pd = 22
+	const lb = 50
+	const bbl = 20
+	const mult = 2.0
+	const ph = 0.85
+
+	// WVF series
+	wvf := make([]float64, n)
+	for i := pd; i < n; i++ {
+		hc := closes[i-pd+1]
+		for k := i - pd + 1; k <= i; k++ {
+			if closes[k] > hc {
+				hc = closes[k]
+			}
+		}
+		if hc > 0 {
+			wvf[i] = ((hc - lows[i]) / hc) * 100.0
+		}
+	}
+
+	// SMA + StDev of WVF
+	midLine := indicators.SMA(wvf, bbl)
+	sDev := indicators.StdDev(wvf, bbl)
+	upperBand := make([]float64, n)
+	for i := 0; i < n; i++ {
+		upperBand[i] = midLine[i] + mult*sDev[i]
+	}
+
+	// Range high (percentile-ish proxy: 85% of highest WVF over lb bars)
+	rangeHigh := make([]float64, n)
+	for i := lb; i < n; i++ {
+		hh := wvf[i-lb+1]
+		for k := i - lb + 1; k <= i; k++ {
+			if wvf[k] > hh {
+				hh = wvf[k]
+			}
+		}
+		rangeHigh[i] = hh * ph
+	}
+
+	bb := indicators.BollingerBands(closes, bbl, mult)
+	st := indicators.Supertrend(highs, lows, closes, 10, 3.0)
+
+	signals := make([]int, n)
+	inPos := false
+	for i := lb + 1; i < n; i++ {
+		if midLine[i] == 0 || bb.Lower[i] == 0 {
+			continue
+		}
+		if !inPos {
+			cap := (wvf[i] >= upperBand[i] || wvf[i] >= rangeHigh[i]) &&
+				(wvf[i-1] >= upperBand[i-1] || wvf[i-1] >= rangeHigh[i-1]) &&
+				closes[i] < bb.Lower[i]
+			if cap {
+				signals[i] = 1
+				inPos = true
+			}
+		} else {
+			if st.Direction[i] == -1 || closes[i] > bb.Upper[i] {
+				signals[i] = -1
+				inPos = false
+			}
+		}
+	}
+	return signals
+}
+
+func (s *WilliamsVixFixStrategy) EntryStops(candles []client.YahooOHLCV, entryIdx int) (float64, float64) {
+	highs := make([]float64, len(candles))
+	lows := make([]float64, len(candles))
+	closes := make([]float64, len(candles))
+	for i, c := range candles {
+		highs[i] = c.High
+		lows[i] = c.Low
+		closes[i] = c.Close
+	}
+	atr := indicators.ATR(highs, lows, closes, 14)
+	if entryIdx >= len(atr) || atr[entryIdx] == 0 {
+		return 0, 0
+	}
+	entry := candles[entryIdx].Close
+	// Capitulation entries: wide SL (price is already extended low), let target run.
+	return entry - 2.5*atr[entryIdx], entry + 5.0*atr[entryIdx]
+}
+
+// --- Range Filter strategy ---
+// Computes an EMA-smoothed range filter and trades only with its direction.
+// Long when filter is rising for N bars + close above filter.
+type RangeFilterStrategy struct{}
+
+func (s *RangeFilterStrategy) Name() string { return "range-filter" }
+
+func (s *RangeFilterStrategy) GenerateSignals(candles []client.YahooOHLCV) []int {
+	n := len(candles)
+	if n == 0 {
+		return []int{}
+	}
+	closes := make([]float64, n)
+	highs := make([]float64, n)
+	lows := make([]float64, n)
+	for i, c := range candles {
+		closes[i] = c.Close
+		highs[i] = c.High
+		lows[i] = c.Low
+	}
+
+	const per = 100
+	const mult = 3.0
+
+	// Average range = EMA(|close - prev_close|, per)
+	absChange := make([]float64, n)
+	for i := 1; i < n; i++ {
+		diff := closes[i] - closes[i-1]
+		if diff < 0 {
+			diff = -diff
+		}
+		absChange[i] = diff
+	}
+	avrng := indicators.EMA(absChange, per)
+	// Smoothed range = EMA(avrng, per*2 - 1) * mult
+	smrng := indicators.EMA(avrng, per*2-1)
+	for i := range smrng {
+		smrng[i] *= mult
+	}
+
+	// Filter: trailing range filter
+	filt := make([]float64, n)
+	filt[0] = closes[0]
+	for i := 1; i < n; i++ {
+		prev := filt[i-1]
+		r := smrng[i]
+		if r == 0 {
+			filt[i] = prev
+			continue
+		}
+		if closes[i] > prev {
+			if closes[i]-r < prev {
+				filt[i] = prev
+			} else {
+				filt[i] = closes[i] - r
+			}
+		} else {
+			if closes[i]+r > prev {
+				filt[i] = prev
+			} else {
+				filt[i] = closes[i] + r
+			}
+		}
+	}
+
+	// Direction counters
+	upward := make([]int, n)
+	for i := 1; i < n; i++ {
+		if filt[i] > filt[i-1] {
+			upward[i] = upward[i-1] + 1
+		} else if filt[i] < filt[i-1] {
+			upward[i] = 0
+		} else {
+			upward[i] = upward[i-1]
+		}
+	}
+
+	signals := make([]int, n)
+	inPos := false
+	for i := per + 1; i < n; i++ {
+		if filt[i] == 0 {
+			continue
+		}
+		if !inPos {
+			// Entry: filter has been rising 2+ bars, close above filter, and a fresh leg.
+			if upward[i] >= 2 && upward[i-1] >= 1 && closes[i] > filt[i] && closes[i] > closes[i-1] {
+				signals[i] = 1
+				inPos = true
+			}
+		} else {
+			// Exit: filter starts falling or close drops below filter.
+			if upward[i] == 0 || closes[i] < filt[i] {
+				signals[i] = -1
+				inPos = false
+			}
+		}
+	}
+	return signals
+}
+
+func (s *RangeFilterStrategy) EntryStops(candles []client.YahooOHLCV, entryIdx int) (float64, float64) {
+	highs := make([]float64, len(candles))
+	lows := make([]float64, len(candles))
+	closes := make([]float64, len(candles))
+	for i, c := range candles {
+		highs[i] = c.High
+		lows[i] = c.Low
+		closes[i] = c.Close
+	}
+	atr := indicators.ATR(highs, lows, closes, 14)
+	if entryIdx >= len(atr) || atr[entryIdx] == 0 {
+		return 0, 0
+	}
+	entry := candles[entryIdx].Close
+	return entry - 2.5*atr[entryIdx], entry + 5.0*atr[entryIdx]
+}
+
 // GetStrategy returns the appropriate strategy for the given name.
 func GetStrategy(name string) Strategy {
 	switch name {
@@ -282,6 +761,16 @@ func GetStrategy(name string) Strategy {
 		return &SupertrendStrategy{}
 	case "donchian":
 		return &DonchianStrategy{}
+	case "stochrsi-supertrend":
+		return &StochRSISupertrendStrategy{}
+	case "dmi-adx-trend":
+		return &DMIADXTrendStrategy{}
+	case "ttm-squeeze":
+		return &TTMSqueezeStrategy{}
+	case "wvf":
+		return &WilliamsVixFixStrategy{}
+	case "range-filter":
+		return &RangeFilterStrategy{}
 	default:
 		return nil
 	}
