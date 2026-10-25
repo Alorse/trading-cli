@@ -231,12 +231,12 @@ func RunSpotPlace(cfg *config.Config, o SpotPlaceOpts) error {
 			}
 			if o.TP > 0 {
 				tpQuery := map[string]string{
-					"symbol":    apiSymbol,
-					"side":      "Sell",
-					"ordType":   "Limit",
-					"qtyType":   "ByBase",
-					"baseQtyEv": scaleEv(filledQty),
-					"priceEp":   scaleEv(o.TP),
+					"symbol":      apiSymbol,
+					"side":        "Sell",
+					"ordType":     "Limit",
+					"qtyType":     "ByBase",
+					"baseQtyEv":   scaleEv(filledQty),
+					"priceEp":     scaleEv(o.TP),
 					"timeInForce": "GoodTillCancel",
 				}
 				tpBody, tpErr := pc.Do(c, "PUT", "/spot/orders/create", tpQuery, nil)

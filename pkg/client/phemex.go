@@ -11,19 +11,19 @@ const phemexBase = "https://api.phemex.com"
 
 // PhemexTicker holds the relevant 24h ticker fields for a perpetual contract.
 type PhemexTicker struct {
-	Symbol           string  `json:"symbol"`
-	LastPrice        float64 `json:"lastPrice"`
-	Open             float64 `json:"open"`
-	High             float64 `json:"high"`
-	Low              float64 `json:"low"`
-	Volume           float64 `json:"volume"`        // base asset volume (24h)
-	Turnover         float64 `json:"turnover"`      // quote asset turnover (24h, USDT for USDT perps)
-	FundingRate      float64 `json:"fundingRate"`   // current funding rate (decimal, e.g. 0.0001 = 0.01%)
-	PredFundingRate  float64 `json:"predFundingRate"`
-	OpenInterest     float64 `json:"openInterest"`  // in base asset units
-	IndexPrice       float64 `json:"indexPrice"`
-	MarkPrice        float64 `json:"markPrice"`
-	ChangePct        float64 `json:"changePct"`     // 24h price change %
+	Symbol          string  `json:"symbol"`
+	LastPrice       float64 `json:"lastPrice"`
+	Open            float64 `json:"open"`
+	High            float64 `json:"high"`
+	Low             float64 `json:"low"`
+	Volume          float64 `json:"volume"`      // base asset volume (24h)
+	Turnover        float64 `json:"turnover"`    // quote asset turnover (24h, USDT for USDT perps)
+	FundingRate     float64 `json:"fundingRate"` // current funding rate (decimal, e.g. 0.0001 = 0.01%)
+	PredFundingRate float64 `json:"predFundingRate"`
+	OpenInterest    float64 `json:"openInterest"` // in base asset units
+	IndexPrice      float64 `json:"indexPrice"`
+	MarkPrice       float64 `json:"markPrice"`
+	ChangePct       float64 `json:"changePct"` // 24h price change %
 }
 
 // PhemexClient hits the public PHEMEX API.

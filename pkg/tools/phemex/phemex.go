@@ -113,17 +113,17 @@ func RunActiveOrders(cfg *config.Config, symbol string) error {
 
 // PlaceOrderOpts describes a USDT-perpetual order.
 type PlaceOrderOpts struct {
-	Symbol      string  // e.g. "BTCUSDT"
-	Side        string  // "Buy" | "Sell"
-	PosSide     string  // "Long" | "Short" | "Merged"
-	OrdType     string  // "Market" | "Limit"
-	OrderQtyRq  string  // contract quantity (base asset units, string per PHEMEX)
-	PriceRp     string  // price (limit orders) — empty for market
-	StopLossRp  string  // optional
-	TPRp        string  // optional take profit
-	TimeInForce string  // optional, default GoodTillCancel
+	Symbol      string // e.g. "BTCUSDT"
+	Side        string // "Buy" | "Sell"
+	PosSide     string // "Long" | "Short" | "Merged"
+	OrdType     string // "Market" | "Limit"
+	OrderQtyRq  string // contract quantity (base asset units, string per PHEMEX)
+	PriceRp     string // price (limit orders) — empty for market
+	StopLossRp  string // optional
+	TPRp        string // optional take profit
+	TimeInForce string // optional, default GoodTillCancel
 	ReduceOnly  bool
-	ClOrdID     string  // optional client order id
+	ClOrdID     string // optional client order id
 }
 
 // RunPlaceOrder: PUT /g-orders/create with parameters in the QUERY string.
@@ -207,9 +207,9 @@ func RunSetLeverage(cfg *config.Config, symbol string, leverage int, marginType 
 	defer cancel()
 	lev := fmt.Sprintf("%d", signed)
 	body, err := pc.Do(c, "PUT", "/g-positions/leverage", map[string]string{
-		"symbol":           strings.ToUpper(symbol),
-		"longLeverageRr":   lev,
-		"shortLeverageRr":  lev,
+		"symbol":          strings.ToUpper(symbol),
+		"longLeverageRr":  lev,
+		"shortLeverageRr": lev,
 	}, nil)
 	if err != nil {
 		fmt.Fprintf(printToStderr(), "%s\n", string(body))

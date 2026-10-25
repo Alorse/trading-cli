@@ -18,7 +18,9 @@ import (
 
 // PhemexPrivateClient performs authenticated requests against the PHEMEX REST API.
 // Signature scheme (per PHEMEX docs):
-//   sig = HMAC_SHA256(secret, URLPath + QueryString + Expiry + Body)
+//
+//	sig = HMAC_SHA256(secret, URLPath + QueryString + Expiry + Body)
+//
 // where the secret is base64-url-decoded before being used as the HMAC key.
 type PhemexPrivateClient struct {
 	baseURL string

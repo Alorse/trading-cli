@@ -15,32 +15,32 @@ import (
 
 // ScalpCandidate is a ranked entry combining TV technicals + PHEMEX futures data.
 type ScalpCandidate struct {
-	Symbol         string             `json:"symbol"`        // e.g. "BTCUSDT.P"
-	Score          int                `json:"score"`         // 0-100 confluence score
-	ChangePct1h    float64            `json:"changePct1h"`
-	ChangePct24h   float64            `json:"changePct24h"`
-	RSI1h          float64            `json:"rsi1h"`
-	VolumeRatio    float64            `json:"volumeRatio"`   // current vs 10d avg
-	FundingRatePct float64            `json:"fundingRatePct"`
-	OpenInterestUSD float64           `json:"openInterestUsd"`
-	Turnover24h    float64            `json:"turnover24h"`
-	LastPrice      float64            `json:"lastPrice"`
-	BBPosition     float64            `json:"bbPosition"`   // 0=bottom, 0.5=middle, 1=top
-	Reasons        []string           `json:"reasons"`
-	Trade          ScalpTradeSetup    `json:"trade"`
+	Symbol          string          `json:"symbol"` // e.g. "BTCUSDT.P"
+	Score           int             `json:"score"`  // 0-100 confluence score
+	ChangePct1h     float64         `json:"changePct1h"`
+	ChangePct24h    float64         `json:"changePct24h"`
+	RSI1h           float64         `json:"rsi1h"`
+	VolumeRatio     float64         `json:"volumeRatio"` // current vs 10d avg
+	FundingRatePct  float64         `json:"fundingRatePct"`
+	OpenInterestUSD float64         `json:"openInterestUsd"`
+	Turnover24h     float64         `json:"turnover24h"`
+	LastPrice       float64         `json:"lastPrice"`
+	BBPosition      float64         `json:"bbPosition"` // 0=bottom, 0.5=middle, 1=top
+	Reasons         []string        `json:"reasons"`
+	Trade           ScalpTradeSetup `json:"trade"`
 }
 
 // ScalpTradeSetup is the suggested setup for a 5x scalp.
 // Risk model: SL = -1% price = -5% account at 5x; TP1 = +2% price = +10% account.
 type ScalpTradeSetup struct {
-	Entry      float64 `json:"entry"`
-	StopLoss   float64 `json:"stopLoss"`   // entry * 0.99 (-1%)
-	TakeProfit1 float64 `json:"takeProfit1"` // entry * 1.02 (+2%) -> exit 50%
-	TakeProfit2 float64 `json:"takeProfit2"` // entry * 1.04 (+4%) -> exit rest
-	RiskAccountPct  float64 `json:"riskAccountPct"`  // 5.0 at 5x leverage
+	Entry             float64 `json:"entry"`
+	StopLoss          float64 `json:"stopLoss"`          // entry * 0.99 (-1%)
+	TakeProfit1       float64 `json:"takeProfit1"`       // entry * 1.02 (+2%) -> exit 50%
+	TakeProfit2       float64 `json:"takeProfit2"`       // entry * 1.04 (+4%) -> exit rest
+	RiskAccountPct    float64 `json:"riskAccountPct"`    // 5.0 at 5x leverage
 	RewardAccountPct1 float64 `json:"rewardAccountPct1"` // 10.0
 	RewardAccountPct2 float64 `json:"rewardAccountPct2"` // 20.0
-	SuggestedLeverage int    `json:"suggestedLeverage"`
+	SuggestedLeverage int     `json:"suggestedLeverage"`
 }
 
 func buildScalpTrade(entry float64) ScalpTradeSetup {

@@ -14,8 +14,8 @@ import (
 // FundingRateEntry is a single row in the funding rate output.
 type FundingRateEntry struct {
 	Symbol          string  `json:"symbol"`
-	FundingRate     float64 `json:"fundingRate"`     // current period (decimal)
-	FundingRatePct  float64 `json:"fundingRatePct"`  // current * 100
+	FundingRate     float64 `json:"fundingRate"`    // current period (decimal)
+	FundingRatePct  float64 `json:"fundingRatePct"` // current * 100
 	PredictedRate   float64 `json:"predictedRate"`
 	PredictedPct    float64 `json:"predictedPct"`
 	LastPrice       float64 `json:"lastPrice"`

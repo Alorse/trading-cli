@@ -24,9 +24,10 @@ type Config struct {
 // Load reads configuration from environment variables with sensible defaults.
 // Also loads .env files from well-known locations (first match wins per-key;
 // already-set env vars are never overridden):
-//   1. ./.env (current working directory)
-//   2. ~/.picoclaw/.env (picoclaw agent integration)
-//   3. ~/.trading-cli.env (standalone fallback)
+//  1. ./.env (current working directory)
+//  2. ~/.picoclaw/.env (picoclaw agent integration)
+//  3. ~/.trading-cli.env (standalone fallback)
+//
 // This makes the binary work from cron/systemd without a sourcing wrapper.
 func Load() *Config {
 	for _, p := range candidateEnvPaths() {
